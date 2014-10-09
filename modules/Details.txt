@@ -1,0 +1,45 @@
+Changes that happen to knowledge state when probe is seen:
+1. ATTACKER:
+	a. Increases total number of probes
+	b. Increases number of probes since last reimage
+	c. update the last probe time
+	d. probability of compromise changes
+	e. status changes
+
+2. DEFENDER:
+	a. Increases total number of probes
+	b. Increases the number of probes since last reimage
+	c. update the last probe time
+	d. probability of compromise changes
+	e. status changes
+
+Changes that happen to knowledge state when attack is successful:
+1. ATTACKER:
+	a. Changes control status of resource
+
+2. DEFENDER:
+	a. No change to knowledge state
+
+Changes that happen to knowledge state when reimage is seen:
+1. ATTACKER -
+	a. Sees reimage if loses control of the server at that point of time
+		1. total no of probes since last reimage goes to 0
+		2. update last reimage time
+		3. probabilty of compromise goes to 0
+		4. control goes to DEF
+		5. Status changes to down?
+	b. If does not have control of the reimaged server
+		1. on the next probe it sees server has been reimaged
+		2. On the next probe will do the sawReimage act
+		3. Can have the attacker after every probe compare its knowledge to the resource state and then update
+
+2. DEFENDER - 
+	a. Executes the reimage
+
+Changes that happen to the knowledge state when a server wakes up
+1. ATTACKER - 
+	a. Does not know about it 
+
+2. DEFENDER - 
+	a. Sets the status to "HEALTHY"
+	b. puts in non-down queue?

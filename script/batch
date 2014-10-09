@@ -1,0 +1,5 @@
+##!/bin/bash -login
+
+module load python
+
+python runSimulator.py "$@"

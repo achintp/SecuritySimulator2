@@ -1,0 +1,15 @@
+{
+	"configuration": {
+		"endTime": "1000",
+		"dtCost": "0.3",
+		"prCost": "0.2",
+		"DEF": "0,0.1,0.7,1.0",
+		"ATT": "0,0.3,0.7,1.0",
+		"runs per sample": "60",
+		"alpha": "0.05",
+		"downTime": "7"
+
+	}
+
+
+}
