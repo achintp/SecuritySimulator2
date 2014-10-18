@@ -1,3 +1,5 @@
+import math
+
 
 class KnowledgeState(object):
     """Stores the knowledge state of the agent."""
@@ -47,7 +49,7 @@ class KnowledgeState(object):
         self.resources[resource]["probes since last reimage"] += 1
         self.resources[resource]["last probe"] = self.time
         self.resources[resource]["probability of compromise"] \
-            = self.computeProb()
+            = self.computeProb(resource)
         self.changeStatus(0, resource)
 
     def sawReimage(self, resource):
@@ -67,9 +69,15 @@ class KnowledgeState(object):
         # server to reflect this
         self.resources[resource]["status"] = "DOWN"
 
-    def setAllActive(self, resource):
+    def setActive(self):
         # Should set all the resources to active...may not be used
+        for name, info in self.resources.iteritems():
+            if info["status"] == "DOWN":
+                self.changeStatus(name, 1)
         return 0
+
+    def setResourceControl(self, resource, control):
+        self.resources[resource]["control"] = control
 
     def getTotalProbes(self, resource):
         return self.resources[resource]["total no of probes"]
@@ -97,3 +105,12 @@ class KnowledgeState(object):
     def getActiveControlByMe(self):
         return list(set(self.getActiveResources).
                     intersection(self.getControlByMe))
+
+    def ComputeProb(self, resource):
+        """Increment probability of compromise depending on curve used"""
+        if(self.resources[resource]["probes since last reimage"] == 0):
+            self.resources[resource]["probability of compromise"] = 0
+        else:
+            self.resources[resource]["probability of compromise"] = (
+                1 - math.exp(-self.alpha * self.resources[resource][
+                    "probes since last reimage"]))

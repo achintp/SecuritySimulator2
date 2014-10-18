@@ -66,3 +66,12 @@ class StateManager(object):
 
     def updateTime(self, time):
         self.currentTime = time
+
+    def probe(self, resource, time):
+        self.activeResources[resource].probe(time)
+
+    def attack(self, resource):
+        return self.activeResources[resource].attack()
+
+    def reimage(self, resource, time):
+        self.activeResources[resource].reimage(time)

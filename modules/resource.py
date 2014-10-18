@@ -31,11 +31,14 @@ class Resource(object):
                 "Total Downtime": self.totalDowntime,
                 "Control": self.controlledBy,
                 "Probe History": self.probeHistory,
-                "Last ReImage": self.lastReImage,
+                "Last ReImage": self.lastReimage,
                 "Downtimes": self.downTime})
 
     def getStatus(self):
-        return self.status
+        return self.statu
+
+    def getControl(self):
+        return self.controlledBy
 
     def changeStatus(self, status):
         if(status == -1):
@@ -46,6 +49,12 @@ class Resource(object):
             self.Status = "HEALTHY"
         else:
             self.Status = "DOWN"
+
+    def isWoken(self, time,  downTime):
+        # On waking should change status
+        self.totalDowntime += downTime
+        self.downTime[-1].append(time)
+        self.changeStatus(1)
 
     def incrementProb(self):
         """Increment probability of compromise depending on curve used"""
@@ -64,6 +73,28 @@ class Resource(object):
         else:
             return 0
 
-    def perviouslyReimaged(self):
+    def previouslyReimaged(self):
         # Checks if the last action performed on this was a reimage
         return (self.probesSinceLastReimage == 0)
+
+    def probe(self, time):
+        self.totalProbes += 1
+        self.probesSinceLastReimage += 1
+        self.probeHistory.append(time)
+        self.incrementProb()
+        self.changeStatus(0)
+
+    def reimage(self, time):
+        self.lastReimage = time
+        self.probesSinceLastReimage = 0
+        self.probCompromise = 0
+        self.controlledBy = "DEF"
+        self.changeStatus(2)
+        self.downTime.append(list(time))
+
+    def attack(self):
+        if(self.isCompromised()):
+            self.controlledBy = "ATT"
+            return True
+        else:
+            return False

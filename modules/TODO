@@ -1,0 +1,3 @@
+1. Check losecontrol function in the state manager / agent
+2. For the attacker, decide what the knowledge of down servers will be like and how he will use it to pick new servers in case the older servers he picked are down
+3 
