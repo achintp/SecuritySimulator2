@@ -1,6 +1,8 @@
 import strategies
 from knowledge_state import KnowledgeState
 
+debug = 0
+
 
 class Agent(object):
     """Base class for all agents"""
@@ -13,11 +15,11 @@ class Agent(object):
         """
         # Initialization of the strategy params
         st = kwargs["strategy"].split("-")
-        self.stName = st[0]
+        self.strategy = st[0]
         self.stParam = st[1]
         self.extraParams = {}  # Can't quite remember what this is
         # Initialize the knowledge model
-        self.knowledge = KnowledgeState(kwargs)
+        # self.knowledge = KnowledgeState(kwargs)
 
     def seeProbe(self, resource, time):
         """Called by simulator"""
@@ -45,22 +47,25 @@ class Attacker(Agent):
     """Defines the attacker agent. Derives from agent"""
     def __init__(self, **params):
         super(Attacker, self).__init__(**params)
-        self.type = "ATT"
+        self.owner = "ATT"
         self.setStrategy()
+        self.knowledge = KnowledgeState(self.owner, params)
 
     def setStrategy(self):
         """Assigns the specific strategy to the agent"""
         if hasattr(self, "strategy"):
+            if(debug):
+                print "Found strategy"
             a = strategies.AttackerStrategies({})
             self.decideAction = a.getStrategy(self.strategy)
 
     def getAction(self):
-        # It's important that the knowledge be updated before calling
-        action = self.decideAction(self.knowledge, self.stParam, True)
-        self.extraParams["previousAction"] = action[0]
-        return action
+        #  It's important that the knowledge be updated before calling
+        resourceName = self.decideAction(self.knowledge, self.stParam, False)
+        #  self.extraParams["previousAction"] = action[0]
+        return resourceName
 
-    def checkKnowledgeState(self, resource, prevReimage):
+    def checkKnowledgeState(self, resource, prevReimage, time):
         # The attacker on probe will also check ks mismatch
         # This is to detect whether a reimage happened in the interim
         # The attacker will then update it's ks accordingly
@@ -71,18 +76,23 @@ class Attacker(Agent):
             # probed a machine and it went down and came up before his
             # next probe on it. In this case the attacker registers a
             # reimage and then a probe
-            self.seeReimage(resource)
-            self.seeProbe(resource)
+            print "prevImage: " + prevReimage + " time: " + str(time)
+            self.seeReimage(resource, time)
+            self.seeProbe(resource, time)
         else:
-            self.seeProbe(resource)
+            self.seeProbe(resource, time)
 
     def loseControl(self, time):
         #  The attacker sees a server he owns get reimaged
         #  However the assumption is its immediately active
         return 0
 
-    def getActionTime(self):
-        actionTime = self.decideAction(self.knowledge, self.stParam, False)
+    def getActionTime(self, time):
+        self.knowledge.updateTime(time)
+        actionTime = self.decideAction(self.knowledge, self.stParam, True)
+        if actionTime is None:
+            return actionTime
+        self.knowledge.previousTime = actionTime
         return (actionTime, None, 0)
 
     def seeCompromise(self, resource):
@@ -93,8 +103,9 @@ class Defender(Agent):
     """Defines the defender agent. Derives from agent"""
     def __init__(self, **params):
         super(Defender, self).__init__(**params)
-        self.type = "DEF"
+        self.owner = "DEF"
         self.setStrategy()
+        self.knowledge = KnowledgeState(self.owner, params)
 
     def setStrategy(self):
         """Assigns the specific strategy to the agent"""
@@ -104,12 +115,16 @@ class Defender(Agent):
 
     def getAction(self):
         # I know that both the agents are the same. Maybe rethink design
-        return self.decideAction(self.knowledge, self.stParam, True)
+        return self.decideAction(self.knowledge, self.stParam, False)
 
     def seeServerWake(self, time, resource):
         self.knowledge.updateTime(time)
         self.knowledge.changeStatus(resource, 1)
 
-    def getActionTime(self):
-        actionTime = self.decideAction(self.knowledge, self.stParam, False)
+    def getActionTime(self, time):
+        self.knowledge.updateTime(time)
+        actionTime = self.decideAction(self.knowledge, self.stParam, True)
+        if actionTime is None:
+            return actionTime
+        self.knowledge.previousTime = actionTime
         return (actionTime, None, 1)

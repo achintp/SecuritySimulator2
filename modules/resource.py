@@ -41,14 +41,15 @@ class Resource(object):
         return self.controlledBy
 
     def changeStatus(self, status):
+        # print "Changing status to " + str(status)
         if(status == -1):
-            self.Status = "COMPR"
+            self.status = "COMPR"
         elif(status == 0):
-            self.Status = "PROBED"
+            self.status = "PROBED"
         elif(status == 1):
-            self.Status = "HEALTHY"
+            self.status = "HEALTHY"
         else:
-            self.Status = "DOWN"
+            self.status = "DOWN"
 
     def isWoken(self, time,  downTime):
         # On waking should change status
@@ -75,7 +76,7 @@ class Resource(object):
 
     def previouslyReimaged(self):
         # Checks if the last action performed on this was a reimage
-        return (self.probesSinceLastReimage == 0)
+        return (self.probesSinceLastReimage == 0 and (self.lastReimage != -1))
 
     def probe(self, time):
         self.totalProbes += 1
@@ -90,7 +91,7 @@ class Resource(object):
         self.probCompromise = 0
         self.controlledBy = "DEF"
         self.changeStatus(2)
-        self.downTime.append(list(time))
+        self.downTime.append([time])
 
     def attack(self):
         if(self.isCompromised()):

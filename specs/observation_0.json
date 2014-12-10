@@ -1,14 +1,14 @@
 {
   "players": [
     {
-      "payoff": 0.0, 
+      "payoff": -1.8, 
       "role": "ATT", 
-      "strategy": "No-Op"
+      "strategy": "periodic-1"
     }, 
     {
-      "payoff": 1000.0, 
+      "payoff": 10.0, 
       "role": "DEF", 
-      "strategy": "No-Op"
+      "strategy": "periodic-10"
     }
   ]
 }

@@ -1,5 +1,7 @@
 import resource
 
+debug = 0
+
 
 class StateManager(object):
     """Manages the resources and any changes to them"""
@@ -74,4 +76,7 @@ class StateManager(object):
         return self.activeResources[resource].attack()
 
     def reimage(self, resource, time):
+        if debug:
+            print "In reimage"
+            print resource
         self.activeResources[resource].reimage(time)
