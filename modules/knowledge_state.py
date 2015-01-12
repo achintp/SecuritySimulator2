@@ -20,7 +20,8 @@ class KnowledgeState(object):
             "last reimage": 0,
             "probability of compromise": 0,
             "control": "DEF",
-            "status": "HEALTHY"
+            "status": "HEALTHY",
+            "Reimage Count": 0
             }
 
         self.resources = {}
@@ -73,12 +74,13 @@ class KnowledgeState(object):
         self.resources[resource]["probes since last reimage"] = 0
         self.resources[resource]["probability of compromise"] = 0
         self.resources[resource]["control"] = "DEF"
+        self.resources[resource]["Reimage Count"] += 1
         self.changeStatus(resource, 2)
-        # print self.resources
+        #  print self.resources
 
     def sawServerWake(self, resource):
         # Only the defender sees this
-        self.changeStatus(1, resource)
+        self.changeStatus(resource, 1)
 
     def sawServerDown(self, resource):
         # On seeing that a server is down changes the status of that
@@ -119,6 +121,8 @@ class KnowledgeState(object):
                 if v["control"] != self.owner]
 
     def getActiveResources(self):
+        print "In active resources"
+        print self.resources
         return [k for k, v in self.resources.iteritems()
                 if v["status"] != "DOWN"]
 

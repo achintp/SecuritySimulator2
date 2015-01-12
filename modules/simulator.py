@@ -115,6 +115,9 @@ class Simulator(object):
 
     def updateInformation(self):
         # Should update the ground truth information state
+        print "Updating information - " + str(self.params["currentTime"])
+        print "Queue is ",
+        print self.eventQueue
         self.stateManager.updateState(self.params["currentTime"])
         info = {}  # isnt required. Consider removing
         info = self.stateManager.resourceReportList
@@ -300,6 +303,7 @@ class Simulator(object):
                 #  A defender will never reimage a server that is down
                 #  Change the ground truth
                 if(resourceName):
+                    print resourceName
                     assert (resourceName in self.stateManager.activeResources)
                     #  If the attacker loses control his state must be updated
                     if(self.stateManager.activeResources[resourceName]
@@ -380,7 +384,7 @@ class Simulator(object):
         u = Utility(self.utilParams)
         utilFunc = u.getUtility(self.utilType)
         payoff = utilFunc(self.stateManager.stateHistory)
-        # if self.debug:
-        #  pprint.pprint(self.stateManager.stateHistory)
+        #  if self.debug:
+        pprint.pprint(self.stateManager.stateHistory)
 
         return payoff

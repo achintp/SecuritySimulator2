@@ -7,11 +7,8 @@
 		"ATT": "0,0.3,0.7,1.0",
 		"runs per sample": "60",
 		"alpha": "0.05",
-		"downTime": "7",
-        "missRate": "0",
-        "lambda": "0",
-        "SigA-theta": "0",
-        "SigB-theta": "0"
+		"downTime": "7"
+
 	}
 
 

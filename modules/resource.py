@@ -92,6 +92,7 @@ class Resource(object):
         self.controlledBy = "DEF"
         self.changeStatus(2)
         self.downTime.append([time])
+        self.reimageCount += 1
 
     def attack(self):
         if(self.isCompromised()):
