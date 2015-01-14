@@ -121,8 +121,8 @@ class KnowledgeState(object):
                 if v["control"] != self.owner]
 
     def getActiveResources(self):
-        print "In active resources"
-        print self.resources
+        #print "In active resources"
+        #print self.resources
         return [k for k, v in self.resources.iteritems()
                 if v["status"] != "DOWN"]
 

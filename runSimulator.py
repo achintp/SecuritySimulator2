@@ -11,12 +11,13 @@ def readJson(jsonFolder):
     config = data["configuration"]
     params = {}
     params['IOFolder'] = jsonFolder
-    # params['startTime'] = int(config["startTime"])
+    #  params['startTime'] = int(config["startTime"])a
+    #  Environmental parameters
     params['startTime'] = 0
     params['endTime'] = int(config["endTime"])
     params['downTime'] = int(config["downTime"])
-    params['missRate'] = float(config["missRate"])
-    params['lambda'] = float(config["lambda"])
+    params['missRate'] = float(config["Probe Miss Rate"])
+    params['falseRate'] = float(config["False Probe Rate"])
 
     # Construct attacker and defender list - fix this goddamn thing
     for st in assign["ATT"]:
@@ -29,18 +30,34 @@ def readJson(jsonFolder):
     for i in range(0, 3):
         params['ResourceList'].append("Server"+str(i))
     # params['ResourceList'] = config["ResourceList"]
+    #  Utility params
     params['dtCost'] = -float(config["dtCost"])
     params['prCost'] = -float(config["prCost"])
 
-    l = config["DEF"].split(',')
-    for i in range(0, len(l)):
-        l[i] = float(l[i])
-    params['DEF'] = l
+    params["attControlSlope"] = float(config["Attacker Control Slope"])
+    params["attControlShift"] = float(config["Attacker Control Shift"])
+    params["attDownSlope"] = float(config["Attacker Down Slope"])
+    params["attDownShift"] = float(config["Attacker Down Shift"])
+    params["defControlSlope"] = float(config["Defender Control Slope"])
+    params["defControlShift"] = float(config["Defender Control Shift"])
+    params["defDownSlope"] = float(config["Defender Down Slope"])
+    params["defDownShift"] = float(config["Defender Down Shift"])
 
-    l = config["ATT"].split(',')
-    for i in range(0, len(l)):
-        l[i] = float(l[i])
-    params['ATT'] = l
+    params["attControlWeight"] = float(config["Attacker Control Weight"])
+    params["attDownWeight"] = float(config["Attacker Down Weight"])
+    params["defControlWeight"] = float(config["Defender Control Weight"])
+    params["defDownWeight"] = float(config["Defender Down Weight"])
+    
+    #l = config["DEF"].split(',')
+    #for i in range(0, len(l)):
+        #l[i] = float(l[i])
+    #params['DEF'] = l
+
+    #l = config["ATT"].split(',')
+    #for i in range(0, len(l)):
+        #l[i] = float(l[i])
+    #params['ATT'] = l
+
     params['alpha'] = float(config['alpha'])
     params['runs per sample'] = config["runs per sample"]
     return params

@@ -13,13 +13,23 @@
 		"endTime": "10",
 		"dtCost": "0.3",
 		"prCost": "0.2",
-		"DEF": "0,0.1,0.7,1.0",
-		"ATT": "0,0.3,0.7,1.0",
-		"runs per sample": "1",
-		"downTime": "7",
+		"runs per sample": "60",
 		"alpha": "0.05",
-        "missRate": "0.5",
-        "lambda": "0.1"
+		"downTime": "7",
+        "Probe miss Rate": "0",
+        "False probe Rate": "0",
+        "Attacker Control Slope": "0",
+        "Attacker Control  Shift": "0",
+        "Attacker Down Slope": "0",
+        "Attacker Down Shift": "0",
+        "Attacker Control Weight" : "0",
+        "Attacker Down Weight": "0",
+        "Defender Control Slope" : "0",
+        "Defender Control Shift": "0",
+        "Defender Down Slope": "0",
+        "Defender Down Shift": "0",
+        "Defender Control Weight": "0",
+        "Defender Down Weight": "0"
 	}
 
 

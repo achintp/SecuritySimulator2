@@ -34,7 +34,7 @@ class Simulator(object):
         self.askAtt = True
         self.askDef = True
         self.simType = 1
-        self.utilType = 'simpleCIA'
+        self.utilType = 'Logistic2P'
         self.attSwitch = True  # For NO-OP, may not use this
         self.defSwitch = True  # FOr NO-OP, may noy use this
         # token = "probe"  # Shift all these into inside the strategies
@@ -53,11 +53,11 @@ class Simulator(object):
             self.missRate = None
             # debugging.log("miss rate is None")
 
-        if(args["lambda"] != 0):
-            self.lambd = args["lambda"]
-            # debugging.log("Lambda is " + str(self.lambd))
+        if(args["falseRate"] != 0):
+            self.falseRate = args["falseRate"]
+            # debugging.log("Lambda is " + str(self.falseRate))
         else:
-            self.lambd = None
+            self.falseRate = None
             # debugging.log("Lambda is None")
 
         # Set the agent strategies in these
@@ -80,16 +80,31 @@ class Simulator(object):
         f = (self.params["endTime"], 0, -1)
         self.eventQueue = [f]
 
-        if self.lambd is not None:
+        if self.falseRate is not None:
             self.getFakeProbe()
 
     def initUtility(self, args):
         self.utilParams = {}
         self.utilParams["dtCost"] = args["dtCost"]
         self.utilParams["prCost"] = args["prCost"]
-        self.utilParams["DEF"] = args["DEF"]
-        self.utilParams["ATT"] = args["ATT"]
+        #  self.utilParams["DEF"] = args["DEF"]
+        #  self.utilParams["ATT"] = args["ATT"]
         self.utilParams["downTime"] = args["downTime"]
+
+        self.utilParams["attControlSlope"] = args["attControlSlope"]
+        self.utilParams["attControlShift"] = args["attControlShift"]
+        self.utilParams["attDownSlope"] = args["attDownSlope"]
+        self.utilParams["attDownShift"] = args["attDownShift"]
+        self.utilParams["defControlSlope"] = args["defControlSlope"]
+        self.utilParams["defControlShift"] = args["defControlShift"]
+        self.utilParams["defDownSlope"] = args["defDownSlope"]
+        self.utilParams["defDownShift"] = args["defDownShift"]
+
+        #  Weights for the function
+        self.utilParams["attControlWeight"] = args["attControlWeight"]
+        self.utilParams["attDownWeight"] = args["attDownWeight"]
+        self.utilParams["defControlWeight"] = args["defControlWeight"]
+        self.utilParams["defDownWeight"] = args["defDownWeight"]
 
     def initAgents(self, args):
         #  We probably don't need a list of agents, since its two player
@@ -311,6 +326,8 @@ class Simulator(object):
                         self.attacker.seeReimage(resourceName,
                                                  self.params["currentTime"])
                         self.askAtt = True
+                    self.defender.seeReimage(resourceName,
+                                             self.params["currentTime"])
                     self.stateManager.reimage(resourceName,
                                               self.params["currentTime"])
                     #  Change from active resource to inactive
@@ -360,7 +377,7 @@ class Simulator(object):
         for item in self.eventQueue:
             assert(item[2] != 3)
 
-        nextTime = random.expovariate(self.lambd)
+        nextTime = random.expovariate(self.falseRate)
         return nextTime
 
     def simulate(self):
@@ -368,6 +385,7 @@ class Simulator(object):
         if self.simType == 1:
             while(self.gameState):
                 self.updateInformation()
+                self.defender.debugKnowledge()
                 if self.askAtt:
                     self.askAttacker()
                 if self.askDef:

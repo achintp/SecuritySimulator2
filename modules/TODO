@@ -1,15 +1,6 @@
-1. Check losecontrol function in the state manager / agent
-2. For the attacker, decide what the knowledge of down servers will be like and how he will use it to pick new servers in case the older servers he picked are down
-3
+01/13/2015:
+1. Pass in the new parameters
+2. Test new utility function
+3. Scalable number of resources
 
-10/19/2014:
-1. Write the defende strategies
-2. Put the debugging statements
-3. Trace that history is same as last time
-4. Make a test run to make sure everything is working
-5. Add faulty defender sensors
 
-The resource info in the knowledge state, at the moment, references just one object. Change by
-1. ddepcopy
-2. Make a new object for holding the data
-3. Reuse the resource object here as well

@@ -76,7 +76,7 @@ class Attacker(Agent):
             # probed a machine and it went down and came up before his
             # next probe on it. In this case the attacker registers a
             # reimage and then a probe
-            print "prevImage: " + prevReimage + " time: " + str(time)
+            print "prevImage: " + str(prevReimage) + " time: " + str(time)
             self.seeReimage(resource, time)
             self.seeProbe(resource, time)
         else:
@@ -115,6 +115,8 @@ class Defender(Agent):
 
     def getAction(self):
         # I know that both the agents are the same. Maybe rethink design
+        print "Before defender action"
+        print self.knowledge.resources
         return self.decideAction(self.knowledge, self.stParam, False)
 
     def seeServerWake(self, time, resource):
@@ -128,3 +130,7 @@ class Defender(Agent):
             return actionTime
         self.knowledge.previousTime = actionTime
         return (actionTime, None, 1)
+
+    def debugKnowledge(self):
+        print "Defender knowledge state"
+        print self.knowledge.resources

@@ -3,13 +3,13 @@ import pprint
 import math
 
 
-def logistic(self, x, slope=1, shift=0):
-    return (1 / (1 - math.exp(-slope(x - shift))))        
+def logistic(x, slope=1, shift=0):
+    return (1 / (1 - math.exp(-slope*(x - shift))))
 
 
 class Utility(object):
     """
-        Has the utility functions that will be used for 
+        Has the utility functions that will be used for
         generating the payoffs
     """
 
@@ -135,24 +135,34 @@ class Utility(object):
         prCost = self.cparams["prCost"]
         downTime = self.cparams["downTime"]
 
+        self.params['DEF'] = 0
+        self.params['ATT'] = 0
+        self.params['totalDowntimeCost'] = 0
+        self.params['totalProbeCost'] = 0
+        self.params['totalDowntime'] = 0
+
         #  First element is slope and second is shift
         attParam = []
         defParam = []
 
-        attParam[0] = self.cparams["attControlSlope"]
-        attParam[1] = self.cparams["attControlShift"]
-        attParam[2] = self.cparams["attDownSlope"]
-        attParam[3] = self.cparams["attDownShift"]
-        defParam[0] = self.cparams["defControlSlope"]
-        defParam[1] = self.cparams["defControlShift"]
-        defParam[2] = self.cparams["defDownSlope"]
-        defParam[3] = self.cparams["defDownShift"]
+        attParam.append(self.cparams["attControlSlope"])
+        attParam.append(self.cparams["attControlShift"])
+        attParam.append(self.cparams["attDownSlope"])
+        attParam.append(self.cparams["attDownShift"])
+        defParam.append(self.cparams["defControlSlope"])
+        defParam.append(self.cparams["defControlShift"])
+        defParam.append(self.cparams["defDownSlope"])
+        defParam.append(self.cparams["defDownShift"])
 
         #  Weights for the function
-        attParam[4] = self.cparams["attControlWeight"]
-        attParam[5] = self.cparams["attDownWeight"]
-        defParam[4] = self.cparams["defControlWeight"]
-        defParam[5] = self.cparams["defDownWeight"]
+        attParam.append(self.cparams["attControlWeight"])
+        attParam.append(self.cparams["attDownWeight"])
+        defParam.append(self.cparams["defControlWeight"])
+        defParam.append(self.cparams["defDownWeight"])
+
+        print "Utility params"
+        print attParam
+        print defParam
 
         attControlUtil = lambda(x): logistic(x, attParam[0], attParam[1])
         attDownUtil = lambda(x): logistic(x, attParam[2], attParam[3])
@@ -160,6 +170,7 @@ class Utility(object):
         defDownUtil = lambda(x): logistic(x, defParam[2], defParam[3])
 
         previousTime = 0
+        currentTime = 0
 
         #  We will track the attacker and defender down/control
         attServers = [0, 0]
