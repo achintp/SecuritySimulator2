@@ -4,7 +4,7 @@ import math
 
 
 def logistic(x, slope=1, shift=0):
-    return (1 / (1 - math.exp(-slope*(x - shift))))
+    return (1.0 / (1 + math.exp(-slope*(x - shift))))
 
 
 class Utility(object):
@@ -196,7 +196,7 @@ class Utility(object):
                     attServers[0] += 1
                 else:
                     defServers[0] += 1
-            for k, v in v["inactiveResources"].iteritems():
+            for k, v in info["inactiveResources"].iteritems():
                 if v["Control"] == "DEF":
                     defServers[1] += 1
                 else:
@@ -206,14 +206,14 @@ class Utility(object):
         lastItem = data[max(data.keys(), key=int)]
         for k, v in lastItem.iteritems():
             for s, r in v.iteritems():
-                self.params["totalProbeCost"] += r["Total Probes Till Now"]
+                self.params["totalProbeCost"] += r["Total Probes till now"]
                 self.params["totalDowntime"] += r["Reimage Count"]
-        self.params["TotalDowntime"] *= downTime
+        self.params["totalDowntime"] *= downTime
         self.params["totalDowntimeCost"] = self.params["totalDowntime"]*dtCost
         payoff = {}
         payoff["totalProbes"] = self.params["totalProbeCost"]
         self.params["totalProbeCost"] *= prCost
         payoff["ATT"] = self.params["ATT"] + self.params["totalProbeCost"]
         payoff["DEF"] = self.params["DEF"] + self.params["totalDowntimeCost"]
-        payoff["totalDowntime"] = self.params["TotalDowntime"]
+        payoff["totalDowntime"] = self.params["totalDowntime"]
         return payoff

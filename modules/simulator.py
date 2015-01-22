@@ -403,6 +403,6 @@ class Simulator(object):
         utilFunc = u.getUtility(self.utilType)
         payoff = utilFunc(self.stateManager.stateHistory)
         #  if self.debug:
-        pprint.pprint(self.stateManager.stateHistory)
+        # pprint.pprint(self.stateManager.stateHistory)
 
         return payoff

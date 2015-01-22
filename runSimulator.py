@@ -110,7 +110,7 @@ def main():
     for i in range(args["samples"]):
         cPayoff = {
             "totalProbes": 0,
-            "totalDownTime": 0,
+            "totalDowntime": 0,
             "DEF": 0,
             "ATT": 0
             }
