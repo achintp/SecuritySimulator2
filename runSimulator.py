@@ -16,8 +16,8 @@ def readJson(jsonFolder):
     params['startTime'] = 0
     params['endTime'] = int(config["endTime"])
     params['downTime'] = int(config["downTime"])
-    params['missRate'] = float(config["Probe Miss Rate"])
-    params['falseRate'] = float(config["False Probe Rate"])
+    params['missRate'] = float(config["Probe miss Rate"])
+    params['falseRate'] = float(config["False probe Rate"])
 
     # Construct attacker and defender list - fix this goddamn thing
     for st in assign["ATT"]:

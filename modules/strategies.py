@@ -63,7 +63,10 @@ class DefenderStrategies(AgentStrategies):
         else:
             #  return the resource to be reimaged
             choices = knowledge.getActiveResources()
-            return random.choice(choices)
+            if choices:
+                return random.choice(choices)
+            else:
+                return None
 
     def No(self, knowledge, stParam, askTime):
         if(askTime):

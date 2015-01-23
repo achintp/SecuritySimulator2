@@ -6,19 +6,19 @@
 		"runs per sample": "60",
 		"alpha": "0.05",
 		"downTime": "7",
-        "resources": "3"
-        "Probe miss Rate": "0",
-        "False probe Rate": "0",
+        "resources": "3",
+        "Probe miss rate": "0",
+        "False probe rate": "0",
         "Attacker Control Slope": "0",
-        "Attacker Control  Incline": "0",
+        "Attacker Control Shift": "0",
         "Attacker Down Slope": "0",
-        "Attacker Down Incline": "0",
+        "Attacker Down Shift": "0",
         "Attacker Control Weight" : "0",
         "Defender Control Slope" : "0",
-        "Defender Control Incline": "0",
+        "Defender Control Shift": "0",
         "Defender Down Slope": "0",
-        "Defender Down Incline": "0",
-        "Defender Control Weight": "0",
+        "Defender Down Shift": "0",
+        "Defender Control Weight": "0"
 	}
 
 
