@@ -27,10 +27,11 @@ def readJson(jsonFolder):
 
     params['ResourceList'] = []
     # Construct resources list - deprecate as well
-    for i in range(0, 3):
+    for i in range(0, int(config["resources"])):
         params['ResourceList'].append("Server"+str(i))
     # params['ResourceList'] = config["ResourceList"]
     #  Utility params
+    params['resources'] = int(config["resources"])
     params['dtCost'] = -float(config["dtCost"])
     params['prCost'] = -float(config["prCost"])
 
@@ -44,10 +45,10 @@ def readJson(jsonFolder):
     params["defDownShift"] = float(config["Defender Down Shift"])
 
     params["attControlWeight"] = float(config["Attacker Control Weight"])
-    params["attDownWeight"] = float(config["Attacker Down Weight"])
+    #  params["attDownWeight"] = float(config["Attacker Down Weight"])
     params["defControlWeight"] = float(config["Defender Control Weight"])
-    params["defDownWeight"] = float(config["Defender Down Weight"])
-    
+    #  params["defDownWeight"] = float(config["Defender Down Weight"])
+
     #l = config["DEF"].split(',')
     #for i in range(0, len(l)):
         #l[i] = float(l[i])

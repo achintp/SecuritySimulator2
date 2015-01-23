@@ -102,9 +102,8 @@ class Simulator(object):
 
         #  Weights for the function
         self.utilParams["attControlWeight"] = args["attControlWeight"]
-        self.utilParams["attDownWeight"] = args["attDownWeight"]
         self.utilParams["defControlWeight"] = args["defControlWeight"]
-        self.utilParams["defDownWeight"] = args["defDownWeight"]
+        self.utilParams["resources"] = args["resources"]
 
     def initAgents(self, args):
         #  We probably don't need a list of agents, since its two player

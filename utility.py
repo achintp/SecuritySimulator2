@@ -133,6 +133,7 @@ class Utility(object):
         #  Actions costs - downtime and probe costs
         dtCost = self.cparams["dtCost"]
         prCost = self.cparams["prCost"]
+        resources = self.cparams["resources"]
         downTime = self.cparams["downTime"]
 
         self.params['DEF'] = 0
@@ -156,9 +157,9 @@ class Utility(object):
 
         #  Weights for the function
         attParam.append(self.cparams["attControlWeight"])
-        attParam.append(self.cparams["attDownWeight"])
+        attParam.append(1 - self.cparams["attControlWeight"])
         defParam.append(self.cparams["defControlWeight"])
-        defParam.append(self.cparams["defDownWeight"])
+        defParam.append(1 -self.cparams["defControlWeight"])
 
         print "Utility params"
         print attParam
@@ -174,7 +175,7 @@ class Utility(object):
 
         #  We will track the attacker and defender down/control
         attServers = [0, 0]
-        defServers = [3, 0]
+        defServers = [resources, 0]
 
         for item in sorted(data.items()):
             currentTime = item[0]
@@ -214,6 +215,6 @@ class Utility(object):
         payoff["totalProbes"] = self.params["totalProbeCost"]
         self.params["totalProbeCost"] *= prCost
         payoff["ATT"] = self.params["ATT"] + self.params["totalProbeCost"]
-        payoff["DEF"] = self.params["DEF"] + self.params["totalDowntimeCost"]
+        payoff["DEF"] = self.params["DEF"]
         payoff["totalDowntime"] = self.params["totalDowntime"]
         return payoff
