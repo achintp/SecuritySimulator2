@@ -36,7 +36,7 @@ def readJson(jsonFolder):
     params['prCost'] = -float(config["prCost"])
 
     params["attControlSlope"] = float(config["Attacker Control Slope"])
-    params["attControlShift"] = float(config["Attacker Control Shift"])
+    params["attControlShift"] = float(config["Attacker Control  Shift"])
     params["attDownSlope"] = float(config["Attacker Down Slope"])
     params["attDownShift"] = float(config["Attacker Down Shift"])
     params["defControlSlope"] = float(config["Defender Control Slope"])

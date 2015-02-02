@@ -61,12 +61,12 @@ class KnowledgeState(object):
         # self.resources[resource]["probability of compromise"] \
         self.computeProb(resource)
         # if debug:
-           # print "Before status change"
-           # print self.resources
+        # print "Before status change"
+        # print self.resources
         self.changeStatus(resource, 0)
         # if debug:
-           # print "Afte probe: "
-           # print self.resources
+        # print "Afte probe: "
+        # print self.resources
 
     def sawReimage(self, resource):
         # Make sure time is updated before calling this
@@ -121,8 +121,8 @@ class KnowledgeState(object):
                 if v["control"] != self.owner]
 
     def getActiveResources(self):
-        #print "In active resources"
-        #print self.resources
+        # print "In active resources"
+        # print self.resources
         return [k for k, v in self.resources.iteritems()
                 if v["status"] != "DOWN"]
 
