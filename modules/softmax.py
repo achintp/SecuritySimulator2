@@ -11,8 +11,8 @@ class Softmax(object):
 
     def getWeights(self, selector):
         if(selector == 1):
-            self.weights = np.loadtxt(open("weights.csv", "rb")
-                                      delimiter=",", skiprows=1)
+            self.weights = np.loadtxt(open("weights.csv", "rb"),
+                                      delimiter=",", skiprows=0)
 
     def softMax(self, features):
         self.getFeatures(features)
@@ -22,6 +22,8 @@ class Softmax(object):
 
         mult = np.dot(self.features, self.weights)
         num = np.exp(mult)
+        print num
         denom = np.sum(num)
+        print denom
         result = num/denom
         return result
