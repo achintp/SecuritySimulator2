@@ -159,11 +159,11 @@ class Utility(object):
         attParam.append(self.cparams["attControlWeight"])
         attParam.append(1 - self.cparams["attControlWeight"])
         defParam.append(self.cparams["defControlWeight"])
-        defParam.append(1 -self.cparams["defControlWeight"])
+        defParam.append(1 - self.cparams["defControlWeight"])
 
-        #print "Utility params"
-        #print attParam
-        #print defParam
+        # print "Utility params"
+        # print attParam
+        # print defParam
 
         attControlUtil = lambda(x): logistic(x, attParam[0], attParam[1])
         attDownUtil = lambda(x): logistic(x, attParam[2], attParam[3])
@@ -184,10 +184,15 @@ class Utility(object):
             timeDiff = currentTime - previousTime
             previousTime = currentTime
             #  Calculate the increment to utility since last time period
-            self.params["ATT"] += timeDiff*(attParam[4]*attControlUtil(attServers[0]))
+            self.params["ATT"] += timeDiff*(attParam[4] *
+                                            attControlUtil(attServers[0]) +
+                                            attParam[5] *
+                                            attDownUtil(defServers[1]))
 
-            self.params["DEF"] += timeDiff*(defParam[4]*defControlUtil(defServers[0]) +
-                                            defParam[5]*defDownUtil(defServers[1]))
+            self.params["DEF"] += timeDiff*(defParam[4] *
+                                            defControlUtil(defServers[0]) +
+                                            defParam[5] *
+                                            defDownUtil(defServers[1]))
 
             #  Find the server distribution
             attServers = [0, 0]
