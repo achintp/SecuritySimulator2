@@ -1,6 +1,7 @@
 import random
 import pprint
 import agents
+import types
 import debugging
 from state_manager import StateManager
 from utility import Utility
@@ -37,6 +38,7 @@ class Simulator(object):
         self.utilType = 'Logistic2P'
         self.attSwitch = True  # For NO-OP, may not use this
         self.defSwitch = True  # FOr NO-OP, may noy use this
+        self.probeToken = False
         # token = "probe"  # Shift all these into inside the strategies
         self.debug = 0
         # Initialize the utility parameters
@@ -67,6 +69,10 @@ class Simulator(object):
             self.defStrategy = v
         for k, v in args["attackerList"].iteritems():
             self.attStrategy = v
+
+        if 'probe' in self.defStrategy:
+            self.probeToken = True
+            # print "ProbeToken"
 
         # Initialize the state manager and the resources
         self.stateManager = StateManager(**{
@@ -317,35 +323,50 @@ class Simulator(object):
                 #  A defender will never reimage a server that is down
                 #  Change the ground truth
                 if(resourceName):
-                    # print resourceName
-                    assert (resourceName in self.stateManager.activeResources)
-                    #  If the attacker loses control his state must be updated
-                    if(self.stateManager.activeResources[resourceName]
-                            .getControl() == "ATT"):
-                        self.attacker.seeReimage(resourceName,
+                    if(type(resourceName is tuple)):
+                        # print resourceName
+                        wakeTime = resourceName[1]
+                        self.eventQueue.append((wakeTime, None, 1))
+                        self.sortEventQueue()
+                    else:
+                        # print resourceName
+                        assert (resourceName in
+                                self.stateManager.activeResources)
+                        # If the attacker loses control his state
+                        # must be updated
+                        if(self.stateManager.activeResources[resourceName]
+                                .getControl() == "ATT"):
+                            self.attacker.seeReimage(
+                                resourceName,
+                                self.params["currentTime"])
+                            self.askAtt = True
+                        self.defender.seeReimage(resourceName,
                                                  self.params["currentTime"])
-                        self.askAtt = True
-                    self.defender.seeReimage(resourceName,
-                                             self.params["currentTime"])
-                    self.stateManager.reimage(resourceName,
-                                              self.params["currentTime"])
-                    #  Change from active resource to inactive
-                    self.stateManager.inactiveResources[resourceName] =\
-                        self.stateManager.activeResources[resourceName]
-                    del self.stateManager.activeResources[resourceName]
-                    assert (self.stateManager.inactiveResources[resourceName]
-                            .lastReimage == self.params["currentTime"])
-                    #  Make sure the defender reigsters the change in his ks
-                    self.askDef = True
-                    #  Queue the wake up event
-                    wakeTime = self.params["currentTime"] +\
-                        self.params["downTime"]
-                    self.eventQueue.append((wakeTime, resourceName, 2))
-                    self.sortEventQueue()
+                        self.stateManager.reimage(resourceName,
+                                                  self.params["currentTime"])
+                        #  Change from active resource to inactive
+                        self.stateManager.inactiveResources[resourceName] =\
+                            self.stateManager.activeResources[resourceName]
+                        del self.stateManager.activeResources[resourceName]
+                        assert (self
+                                .stateManager
+                                .inactiveResources[resourceName]
+                                .lastReimage == self.params["currentTime"])
+                        # Make sure the defender reigsters the change
+                        # in his ks
+                        self.askDef = True
+                        #  Queue the wake up event
+                        wakeTime = self.params["currentTime"] +\
+                            self.params["downTime"]
+                        self.eventQueue.append((wakeTime, resourceName, 2))
+                        self.sortEventQueue()
                 else:
                     #  No  action can be taken by the defender
                     assert(resourceName is None)
-                    self.askDef = True
+                    if self.probeToken:
+                        self.askDef = False
+                    else:
+                        self.askDe = True
                     self.askAtt = False
             elif(it[2] == 3):
                 #  Fake probe to be detected by the defender
@@ -385,6 +406,7 @@ class Simulator(object):
             while(self.gameState):
                 self.updateInformation()
                 # self.defender.debugKnowledge()
+                # print self.params["currentTime"]
                 if self.askAtt:
                     self.askAttacker()
                 if self.askDef:

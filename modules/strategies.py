@@ -39,12 +39,24 @@ class AttackerStrategies(AgentStrategies):
             else:
                 return None
 
+    def periodicMax(self, knowledge, period, askTime):
+        if askTime:
+            return self.periodic(knowledge, period, askTime)
+        else:
+            choices = knowledge.getActiveControlByOthers()
+            if choices:
+                server = knowledge.getMaxProbed(choices)
+                if server:
+                    return server
+                else:
+                    assert(False)
+
     def No(self, knowledge, stParam, askTime):
         if(askTime):
-            #  Make this bigger than the horizon, use horizon for setting
+            # Make this bigger than the horizon, should use horizon for setting
             return 1000000
         else:
-            #  Should not be reached, the action should never be executed
+            # Should not be reached, the action should never be executed
             assert(False)
 
 
@@ -67,6 +79,46 @@ class DefenderStrategies(AgentStrategies):
                 return random.choice(choices)
             else:
                 return None
+
+    def periodicMax(self, knowledge, period, askTime):
+        if askTime:
+            return self.periodic(knowledge, period, askTime)
+        else:
+            choices = knowledge.getActiveResources()
+            if choices:
+                server = knowledge.getMaxProbed(choices)
+                if server:
+                    return server
+                else:
+                    assert(False)
+
+    def probeCountTime(self, knowledge, params, askTime):
+        if askTime:
+            # Initiate the action at this time
+            return knowledge.time
+        else:
+            # Get the params
+            params = params.split('_')
+            probeLimit = float(params[0])
+            timeLimit = float(params[1])
+
+            # if number of probes has crossed the threshold
+            activeList = knowledge.getActiveResources()
+            if activeList:
+                maxProbed = knowledge.getMaxProbed(activeList)
+                if maxProbed is not None:
+                    if (knowledge.resources[maxProbed][
+                       "probes since last reimage"] >= probeLimit):
+                        return maxProbed
+
+                    # if the threshold has been crossed by anyone
+                    lastProbed = knowledge.getLastProbed()
+                    if lastProbed[0] is not None:
+                        if knowledge.time - lastProbed[1] >= timeLimit:
+                            return lastProbed[0]
+                        else:
+                            return (-1, timeLimit + float(lastProbed[1]))
+        return None
 
     def No(self, knowledge, stParam, askTime):
         if(askTime):

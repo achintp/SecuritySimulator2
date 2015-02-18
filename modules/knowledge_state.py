@@ -145,3 +145,29 @@ class KnowledgeState(object):
                 1 - math.exp(-self.alpha * self.resources[resource][
                     "probes since last reimage"]))
             # print self.resources[resource]["probability of compromise"]
+
+    def getMaxProbed(self, resourceList):
+        if resourceList:
+            maxServer = None
+            maxCount = -1
+            for item in resourceList:
+                if (self.resources[item]["probes since last reimage"] >
+                   maxCount):
+                    maxServer = item
+                    maxCount = self.resources[item][
+                        "probes since last reimage"]
+            assert(maxServer is not None)
+            return maxServer
+        else:
+            return None
+
+    def getLastProbed(self):
+        activeList = self.getActiveResources()
+        if activeList:
+            lastProbed = None
+            lastTime = -1
+            for name in activeList:
+                if self.resources[name]["probes since last reimage"] > 0\
+                   and self.resources[name]["last probe"] > lastTime:
+                    lastProbed = name
+            return (lastProbed, lastTime)

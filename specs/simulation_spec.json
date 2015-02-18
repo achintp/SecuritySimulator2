@@ -1,16 +1,16 @@
 {
 	"assignment": {
 		"ATT": [
-			"periodic-1"
+			"periodicMax-1"
 		],
 
 		"DEF": [
-			"periodic-5"
+			"probeCountTime-5_9"
 		]
 	},
 
 	"configuration":{
-		"endTime": "1000",
+		"endTime": "10000",
 		"dtCost": "0.3",
 		"prCost": "0.2",
 		"runs per sample": "1",
@@ -19,16 +19,16 @@
         "Probe miss rate": "0",
         "False probe rate": "0",
         "Attacker Control Slope": "1",
-        "Attacker Control Shift": "0",
+        "Attacker Control Shift": "0.5",
         "Attacker Down Slope": "1",
-        "Attacker Down Shift": "0",
-        "Attacker Control Weight" : "0",
-        "Defender Control Slope" : "1",
-        "Defender Control Shift": "0",
+        "Attacker Down Shift": "0.5",
+        "Attacker Control Weight" : "0.5",
+        "Defender Control Slope" : "5",
+        "Defender Control Shift": "0.95",
         "Defender Down Slope": "1",
         "Defender Down Shift": "0",
-        "Defender Control Weight": "0",
-        "resources": "5"
+        "Defender Control Weight": "1",
+        "resources": "100"
  
 	}
 

@@ -16,8 +16,8 @@ def readJson(jsonFolder):
     params['startTime'] = 0
     params['endTime'] = int(config["endTime"])
     params['downTime'] = int(config["downTime"])
-    params['missRate'] = float(config["Probe miss Rate"])
-    params['falseRate'] = float(config["False probe Rate"])
+    params['missRate'] = float(config["Probe miss rate"])
+    params['falseRate'] = float(config["False probe rate"])
 
     # Construct attacker and defender list - fix this goddamn thing
     for st in assign["ATT"]:
@@ -36,18 +36,20 @@ def readJson(jsonFolder):
     params['prCost'] = -float(config["prCost"])
 
     params["attControlSlope"] = float(config["Attacker Control Slope"])
-    params["attControlShift"] = float(config["Attacker Control  Shift"])
+    params["attControlShift"] = float(config["Attacker Control Shift"]) * \
+        int(config['resources'])
     params["attDownSlope"] = float(config["Attacker Down Slope"])
-    params["attDownShift"] = float(config["Attacker Down Shift"])
+    params["attDownShift"] = float(config["Attacker Down Shift"]) * \
+        int(config['resources'])
     params["defControlSlope"] = float(config["Defender Control Slope"])
-    params["defControlShift"] = float(config["Defender Control Shift"])
+    params["defControlShift"] = float(config["Defender Control Shift"]) * \
+        int(config['resources'])
     params["defDownSlope"] = float(config["Defender Down Slope"])
-    params["defDownShift"] = float(config["Defender Down Shift"])
+    params["defDownShift"] = float(config["Defender Down Shift"]) * \
+        int(config['resources'])
 
     params["attControlWeight"] = float(config["Attacker Control Weight"])
-    #  params["attDownWeight"] = float(config["Attacker Down Weight"])
     params["defControlWeight"] = float(config["Defender Control Weight"])
-    #  params["defDownWeight"] = float(config["Defender Down Weight"])
 
     #l = config["DEF"].split(',')
     #for i in range(0, len(l)):

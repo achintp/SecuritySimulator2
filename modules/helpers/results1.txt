@@ -1,0 +1,71 @@
+Some trivial results:
+
+With only periodic (no probeCountTime):
+ A1_D1:
+ In this scenario both the attacker and defender get equal utility from having servers down or in their conrol
+
+ Attackers - periodic/Max {No, 0.1, 1, 5, 10, 30}
+ Defenders - periodic/Max {No, 1, 7, 10, 30, 100}
+
+ Equ:
+ [{u'data': {u'ATT': {u'No-Op': 1.0}, u'DEF': {u'periodic-1': 1.0}},
+  u'type': u'GA_Profile'},
+ {u'data': {u'ATT': {u'No-Op': 1.0},
+            u'DEF': {u'periodic-1': 0.9337142629,
+                     u'periodic-100': 0.0662857371}}
+  u'type': u'GA_Profile'},
+ {u'data': {u'ATT': {u'No-Op': 1.0},
+            u'DEF': {u'periodic-1': 0.92428701,
+                     u'periodicMax-100': 0.07571299}}
+  u'type': u'GA_Profile'},
+ {u'data': {u'ATT': {u'No-Op': 1.0},
+            u'DEF': {u'periodic-1': 0.9221920072,
+                     u'periodic-100': 0.0459469949,
+                     u'periodicMax-100': 0.0318609979}}
+
+This makes sense because in this scenario both the defender and the attacker get the same utility from having servers down or up and in control. In this case, it makes sense for the defender to just keep everything down, so reimage all the time (no downtime cost). The attackers best response is to do nothing and gain from the servers that are down.
+
+
+
+
+
+A2_D1:
+In this scenario the attacker gets utility only from having servers in it's control
+
+Eq:
+[{u'data': {u'ATT': {u'No-Op': 1.0}, u'DEF': {u'periodic-1': 1.0}},
+  u'type': u'GA_Profile'},
+ {u'data': {u'ATT': {u'No-Op': 1.0},
+            u'DEF': {u'periodic-1': 0.9139849966,
+                     u'periodic-100': 0.0860150034}},
+  u'type': u'GA_Profile'},
+ {u'data': {u'ATT': {u'No-Op': 1.0},
+            u'DEF': {u'periodic-1': 0.9146619037,
+                     u'periodicMax-100': 0.0853380963}},
+  u'type': u'GA_Profile'}]
+
+The defender once again plays aggresively, forcing the attacker to back off completely. For the attacker, getting significant utility hinges on having ~4-5 servers in it's control, hence the best option is to back off completely.
+
+
+
+
+A3_D1:
+In this scenario the attacker gets most of its utility from having a single server in its control
+
+Eq:
+[{u'data': {u'ATT': {u'periodicMax-0.1': 1.0}, u'DEF': {u'periodic-1': 1.0}},
+  u'type': u'GA_Profile'}]
+
+ The defender will continue to play aggressively. The attacker now will also play aggressively since it has to compromise at most one machine in order to get most of it's utility. If we further increased the frequency of the defender moves, the attacker would probably be forced to back off.
+
+
+
+Including PCT{1_x, 2_1, 2_10, 2_100, 3_1, 3_10, 3_100, 4_1, 4_10, 4_100}:
+A1_D1:
+
+With probe miss rate = 0.1
+No change in Eq
+
+With probe miss rate = 0.3
+No change in Eq
+
