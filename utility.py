@@ -159,11 +159,11 @@ class Utility(object):
         attParam.append(self.cparams["attControlWeight"])
         attParam.append(1 - self.cparams["attControlWeight"])
         defParam.append(self.cparams["defControlWeight"])
-        defParam.append(1 -self.cparams["defControlWeight"])
+        defParam.append(1 - self.cparams["defControlWeight"])
 
-        #print "Utility params"
-        #print attParam
-        #print defParam
+        # print "Utility params"
+        # print attParam
+        # print defParam
 
         attControlUtil = lambda(x): logistic(x, attParam[0], attParam[1])
         attDownUtil = lambda(x): logistic(x, attParam[2], attParam[3])
