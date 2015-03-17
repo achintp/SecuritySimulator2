@@ -1,12 +1,12 @@
 {
   "players": [
     {
-      "payoff": 4728.777918217459, 
+      "payoff": 9605.063948477644, 
       "role": "ATT", 
       "strategy": "periodicMax-1"
     }, 
     {
-      "payoff": 39.013427430952184, 
+      "payoff": 46.47983034550461, 
       "role": "DEF", 
       "strategy": "probeCountTime-5_9"
     }

@@ -40,12 +40,12 @@ class Utility(object):
 
         #pprint.pprint(data)
 
-        #Actions costs - downtime and probe costs
+        # Actions costs - downtime and probe costs
         dtCost = self.cparams['dtCost']
         prCost = self.cparams['prCost']
         downTime = self.cparams['downTime']
 
-        #Status payoffs - server control costs
+        # Status payoffs - server control costs
         controlPayoffs = {}
         controlPayoffs['DEF'] = self.cparams['DEF']
         controlPayoffs['ATT'] = self.cparams['ATT']
@@ -58,12 +58,12 @@ class Utility(object):
         previousTime = 0
         currentTime = 0
         prevC = {}
-        #Tracks the servers under each agents control
+        # Tracks the servers under each agents control
         sCount = {
-                'DEF':0,
-                'ATT':0
+                'DEF': 0,
+                'ATT': 0
                 }
-        #Tracks the previous controller of each server
+        # Tracks the previous controller of each server
         prevC['Server0'] = 'DEF'
         prevC['Server1'] = 'DEF'
         prevC['Server2'] = 'DEF'
@@ -78,7 +78,7 @@ class Utility(object):
             timeFactor = currentTime - previousTime
             pTime = previousTime
             previousTime = currentTime
-            #Might need to correct this
+            # Might need to correct this
             # for res, rep in hist['inactiveResources'].iteritems():
                 # self.params['totalDowntimeCost'] += timeFactor*dtCost
                 # # print "-------->" + res
@@ -87,35 +87,33 @@ class Utility(object):
             # for res, rep in hist['activeResources'].iteritems():
             # 	sCount[prevC[res]] += 1
             # 	prevC[res] = rep['Control']
-            for k,v in sCount.iteritems():
+            for k, v in sCount.iteritems():
                 # print k,v, time
-                # print "Do [" + str(currentTime) + "-" + str(pTime) + "] " + "*" +str((controlPayoffs[k])[v])
+                # print "Do [" + str(currentTime) + "-" + str(pTime) + "] " + "* " +str((controlPayoffs[k])[v])
                 # print ']]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]]\n'
-                #Accrues utility for time period (t-1) to t
+                # Accrues utility for time period (t-1) to t
                 self.params[k] += timeFactor*(controlPayoffs[k])[v]
                 sCount[k] = 0
             # print self.params
-            #Count servers for each agent at time t
+            # Count servers for each agent at time t
             for res, rep in hist['activeResources'].iteritems():
                 sCount[rep['Control']] += 1
             for res, rep in hist['inactiveResources'].iteritems():
                 sCount[rep['Control']] += 1
 
-
         lastItem = data[max(data.keys(), key=int)]
-        for k,v in lastItem.iteritems():
-            for s,r in v.iteritems():
+        for k, v in lastItem.iteritems():
+            for s, r in v.iteritems():
                 self.params['totalProbeCost'] += r['Total Probes till now']
                 self.params['totalDowntime'] += r['Reimage Count']
                 # print self.params
 
-
         self.params['totalDowntime'] *= downTime
         self.params['totalDowntimeCost'] = self.params['totalDowntime']*dtCost
         payoff = {}
-        payoff["totalProbes"] = self.params['totalProbeCost'] 
+        payoff["totalProbes"] = self.params['totalProbeCost']
 
-        self.params['totalProbeCost'] *= prCost		
+        self.params['totalProbeCost'] *= prCost
         payoff["DEF"] = self.params['totalDowntimeCost'] + self.params['DEF']
         payoff["ATT"] = self.params['totalProbeCost'] + self.params['ATT']
         payoff["totalDownTime"] = self.params['totalDowntime']
@@ -187,12 +185,14 @@ class Utility(object):
             self.params["ATT"] += timeDiff*(attParam[4] *
                                             attControlUtil(attServers[0]) +
                                             attParam[5] *
-                                            attDownUtil(defServers[1]))
+                                            attDownUtil(
+                                                attServers[0] + defServers[1]))
 
             self.params["DEF"] += timeDiff*(defParam[4] *
                                             defControlUtil(defServers[0]) +
                                             defParam[5] *
-                                            defDownUtil(defServers[1]))
+                                            defDownUtil(
+                                                defServers[0] + defServers[1]))
 
             #  Find the server distribution
             attServers = [0, 0]
@@ -203,6 +203,9 @@ class Utility(object):
                 else:
                     defServers[0] += 1
             for k, v in info["inactiveResources"].iteritems():
+                # It's important to remember that in the case of the general
+                # utility fucntion the down servers are not really under any
+                # control
                 if v["Control"] == "DEF":
                     defServers[1] += 1
                 else:

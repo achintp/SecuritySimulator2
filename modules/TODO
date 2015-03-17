@@ -1,11 +1,4 @@
-01/13/2015:
-1. Pass in the new parameters
-2. Test new utility function
-3. Scalable number of resources
-
-02/11/2015:
-1. Figure parameters for larger resources
-2. Include Deception and PCT
-3. 
-
-
+03.16.2015:
+Update the utility function
+Run all the tests again
+Remove old values
