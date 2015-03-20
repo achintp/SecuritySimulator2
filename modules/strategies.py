@@ -127,3 +127,20 @@ class DefenderStrategies(AgentStrategies):
         else:
             #  Should not be reached, the action should never be executed
             assert(False)
+
+    def renewal(self, knowledge, mean, askTime):
+        if askTime:
+            if knowledge.time < knowledge.previousTime:
+                return None
+            else:
+                diff = random.expovariate(1.0/mean)
+                return knowledge.time + diff
+        else:
+            # Use periodicMax to get the servers
+            return self.periodicMax(knowledge, None, False)
+
+    def stochasticProbecount(self, knowledge, params, askTime):
+        if askTime:
+            return knowledge.time
+        else:
+            
