@@ -134,17 +134,20 @@ class KnowledgeState(object):
         return list(set(self.getActiveResources()).
                     intersection(self.getControlByOther()))
 
-    def computeProb(self, resource):
+    def _computeProb(self, resource):
         """Increment probability of compromise depending on curve used"""
         # print "Computing probability of of compromise"
         if(self.resources[resource]["probes since last reimage"] == 0):
-            self.resources[resource]["probability of compromise"] = 0
+            return 0
         else:
             # print "Getting probability - computing"
-            self.resources[resource]["probability of compromise"] = (
-                1 - math.exp(-self.alpha * self.resources[resource][
+            return (1 - math.exp(-self.alpha * self.resources[resource][
                     "probes since last reimage"]))
             # print self.resources[resource]["probability of compromise"]
+
+    def computeProb(self, resource):
+        self.resources[resource]["probability of compromise"] =\
+            self._computeProb(resource)
 
     def getMaxProbed(self, resourceList):
         if resourceList:

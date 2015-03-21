@@ -51,6 +51,12 @@ class AttackerStrategies(AgentStrategies):
                 else:
                     assert(False)
 
+    def periodicDecept(self, knowledge, period, askTime):
+        # TODO
+        # After a fixed time will consider compromised servers
+        # as probe targets. Implement by 03/25/2015
+        return 0
+
     def No(self, knowledge, stParam, askTime):
         if(askTime):
             # Make this bigger than the horizon, should use horizon for setting
@@ -58,6 +64,27 @@ class AttackerStrategies(AgentStrategies):
         else:
             # Should not be reached, the action should never be executed
             assert(False)
+
+    def renewal(self, knowledge, mean, askTime):
+        if askTime:
+            if knowledge.time < knowledge.previousTime:
+                return None
+            else:
+                diff = random.expovariate(1.0/mean)
+                return knowledge.time + diff
+        else:
+            return self.periodicMax(knowledge, None, False)
+
+    def refactoryRenewal(self, knowledge, params, askTime):
+        # TODO
+        # Waits for a refactory recovery period before assigning period
+        # for next move. Implement by 03/22/2015
+        return 0
+
+    def controlN(self, knowledge, N, askTime):
+        # Will probe fast if less than N under control
+        # Implement by ?
+        return 0
 
 
 class DefenderStrategies(AgentStrategies):
@@ -129,6 +156,9 @@ class DefenderStrategies(AgentStrategies):
             assert(False)
 
     def renewal(self, knowledge, mean, askTime):
+        """
+        Follows a stochastic periodic process in taking action
+        """
         if askTime:
             if knowledge.time < knowledge.previousTime:
                 return None
@@ -140,7 +170,39 @@ class DefenderStrategies(AgentStrategies):
             return self.periodicMax(knowledge, None, False)
 
     def stochasticProbecount(self, knowledge, params, askTime):
+        """
+        Simulates attacks on the max probed server, reimags on success
+        """
         if askTime:
             return knowledge.time
         else:
-            
+            choices = knowledge.getActiveResources()
+            if choices:
+                server = knowledge.getMaxProbed(choices)
+                if server:
+                    prob = knowledge._computeProb(server)
+                    random.seed()
+                    rand = random.random()
+                    if rand < prob:
+                        return server
+            return None
+
+    def refactoryRenewal(self, knowledge, params, askTime):
+        # TODO
+        # Same as attackers refactory
+        # Implement by 03/22/2015
+        return 0
+
+    def controlN(self, knowledge, N, askTime):
+        # TODO
+        # Looks at the health of the system. If below, then get it back
+        # Define assumptions appropriately
+        # Implement by - 03/22/2015
+        return 0
+
+    def greedy(self, ...):
+        # Maximizes the local benefit
+        # High priority
+        # Frame optimization problem and solver
+        # Implement ASAP
+        return 0
