@@ -1,11 +1,11 @@
 {
 	"assignment": {
 		"ATT": [
-			"periodicMax-1"
+			"controlN-1_10"
 		],
 
 		"DEF": [
-			"probeCountTime-5_9"
+			"periodic-10"
 		]
 	},
 
@@ -28,7 +28,7 @@
         "Defender Down Slope": "1",
         "Defender Down Shift": "0",
         "Defender Control Weight": "1",
-        "resources": "100"
+        "resources": "10"
  
 	}
 

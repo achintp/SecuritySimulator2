@@ -70,7 +70,7 @@ class AttackerStrategies(AgentStrategies):
             if knowledge.time < knowledge.previousTime:
                 return None
             else:
-                diff = random.expovariate(1.0/mean)
+                diff = random.expovariate(1.0/float(mean))
                 return knowledge.time + diff
         else:
             return self.periodicMax(knowledge, None, False)
@@ -84,7 +84,7 @@ class AttackerStrategies(AgentStrategies):
                 return None
             else:
                 params = params.split('_')
-                refactorTime = float(param[0])
+                refactorTime = float(params[0])
                 mean = float(params[1])
                 diff = random.expovariate(1.0/mean)
                 return knowledge.time + diff + refactorTime
@@ -103,12 +103,14 @@ class AttackerStrategies(AgentStrategies):
             return knowledge.time + interval
         else:
             controlList = knowledge.getActiveControlByMe()
-            if controlList:
-                params = params.split('_')
-                N = int(params[1])
-                if len(controlList) < N:
-                    return self.periodicMax(knowledge, None, False)
-            return None
+
+            params = params.split('_')
+            N = int(params[1])
+            print len(controlList)
+            if len(controlList) < N:
+                print "Attack"
+                return self.periodicMax(knowledge, None, False)
+        return None
 
 
 class DefenderStrategies(AgentStrategies):
@@ -190,7 +192,7 @@ class DefenderStrategies(AgentStrategies):
             if knowledge.time < knowledge.previousTime:
                 return None
             else:
-                diff = random.expovariate(1.0/mean)
+                diff = random.expovariate(1.0/float(mean))
                 return knowledge.time + diff
         else:
             # Use periodicMax to get the servers
@@ -263,7 +265,7 @@ class DefenderStrategies(AgentStrategies):
                 return server
         return 0
 
-    def greedy(self, ...):
+    def greedy(self):
         # Maximizes the local benefit
         # High priority
         # Frame optimization problem and solver
