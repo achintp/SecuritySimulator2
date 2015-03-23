@@ -251,6 +251,7 @@ class DefenderStrategies(AgentStrategies):
         #    servers at any point of time
         # 3. Health of the system is defined as the probability that the
         #    defender has control of at least N servers at any point of time
+        # params - (N, threshold, refactorTime)
         if askTime:
             if knowledge.time < knowledge.previousTime:
                 return None
