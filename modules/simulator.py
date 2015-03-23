@@ -209,7 +209,7 @@ class Simulator(object):
 
         #  Both the attacker and defender knowledge states should have the
         #  latest time accessible.
-
+        # print self.eventQueue
         if(self.eventQueue[0][0] > self.params["endTime"]):
             # This is never going to happen since the endtime is a queued event
             assert(False)
@@ -319,11 +319,13 @@ class Simulator(object):
                 # debugging.eventLog(it, resourceName)
             #  For a defender action
             elif(it[2] == 1):
+                # print "Here"
                 resourceName = self.defender.getAction()
                 #  A defender will never reimage a server that is down
                 #  Change the ground truth
                 if(resourceName):
-                    if(type(resourceName is tuple)):
+                    # print resourceName
+                    if(type(resourceName) is tuple):
                         # print resourceName
                         wakeTime = resourceName[1]
                         self.eventQueue.append((wakeTime, None, 1))

@@ -77,7 +77,7 @@ class KnowledgeState(object):
         self.resources[resource]["control"] = "DEF"
         self.resources[resource]["Reimage Count"] += 1
         self.changeStatus(resource, 2)
-        #  print self.resources
+        # print self.resources
 
     def sawServerWake(self, resource):
         # Only the defender sees this
@@ -183,7 +183,7 @@ class KnowledgeState(object):
             for server in activeList:
                 prob = self._computeProb(server)
                 probMatrix.append(prob)
-            print probMatrix
+            # print probMatrix
 
             serverIter = itertools.combinations(
                 [i for i in range(len(probMatrix))], N)

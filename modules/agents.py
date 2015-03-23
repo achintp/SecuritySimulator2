@@ -129,6 +129,7 @@ class Defender(Agent):
         if actionTime is None:
             return actionTime
         self.knowledge.previousTime = actionTime
+        # print actionTime
         return (actionTime, None, 1)
 
     def debugKnowledge(self):

@@ -5,16 +5,16 @@
 		],
 
 		"DEF": [
-			"periodic-10"
+			"controlN-2_0.0001_0"
 		]
 	},
 
 	"configuration":{
-		"endTime": "10000",
+		"endTime": "1000",
 		"dtCost": "0.3",
 		"prCost": "0.2",
 		"runs per sample": "1",
-		"alpha": "0.05",
+		"alpha": "0.01",
 		"downTime": "7",
         "Probe miss rate": "0",
         "False probe rate": "0",

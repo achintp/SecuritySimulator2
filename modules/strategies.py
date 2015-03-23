@@ -98,6 +98,8 @@ class AttackerStrategies(AgentStrategies):
         if askTime:
             # Keep polling at every time interval
             # Will increase running times a lot
+            if knowledge.time < knowledge.previousTime:
+                return None
             params = params.split('_')
             interval = float(params[0])
             return knowledge.time + interval
@@ -106,9 +108,9 @@ class AttackerStrategies(AgentStrategies):
 
             params = params.split('_')
             N = int(params[1])
-            print len(controlList)
+            # print len(controlList)
             if len(controlList) < N:
-                print "Attack"
+                # print "Attack"
                 return self.periodicMax(knowledge, None, False)
         return None
 
@@ -203,9 +205,13 @@ class DefenderStrategies(AgentStrategies):
         Simulates attacks on the max probed server, reimags on success
         """
         if askTime:
-            return knowledge.time + float(params)
+            if knowledge.time < knowledge.previousTime:
+                return None
+            else:
+                return knowledge.time + float(params)
         else:
             choices = knowledge.getActiveResources()
+            print choices
             if choices:
                 server = knowledge.getMaxProbed(choices)
                 if server:
@@ -246,6 +252,8 @@ class DefenderStrategies(AgentStrategies):
         # 3. Health of the system is defined as the probability that the
         #    defender has control of at least N servers at any point of time
         if askTime:
+            if knowledge.time < knowledge.previousTime:
+                return None
             if DefenderStrategies.refactor:
                 params = params.split('_')
                 refactorTime = float(params[2])
@@ -258,12 +266,14 @@ class DefenderStrategies(AgentStrategies):
             N = int(params[0])
             threshold = float(params[1])
             health = knowledge.calculateHealth(N)
+            # print "Health is " + str(health)
             if health > threshold:
+                # print "Fixing health"
                 server = self.periodicMax(knowledge, None, False)
                 if server is not None:
                     DefenderStrategies.refactor = True
                 return server
-        return 0
+        return None
 
     def greedy(self):
         # Maximizes the local benefit
