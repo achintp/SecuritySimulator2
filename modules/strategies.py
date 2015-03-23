@@ -79,15 +79,42 @@ class AttackerStrategies(AgentStrategies):
         # TODO
         # Waits for a refactory recovery period before assigning period
         # for next move. Implement by 03/22/2015
+        if askTime:
+            if knowledge.time < knowledge.previousTime:
+                return None
+            else:
+                params = params.split('_')
+                refactorTime = float(param[0])
+                mean = float(params[1])
+                diff = random.expovariate(1.0/mean)
+                return knowledge.time + diff + refactorTime
+        else:
+            return self.periodicMax(knowledge, None, False)
         return 0
 
-    def controlN(self, knowledge, N, askTime):
+    def controlN(self, knowledge, params, askTime):
         # Will probe fast if less than N under control
-        # Implement by ?
-        return 0
+        # Implement by 03/22/2015
+        if askTime:
+            # Keep polling at every time interval
+            # Will increase running times a lot
+            params = params.split('_')
+            interval = float(params[0])
+            return knowledge.time + interval
+        else:
+            controlList = knowledge.getActiveControlByMe()
+            if controlList:
+                params = params.split('_')
+                N = int(params[1])
+                if len(controlList) < N:
+                    return self.periodicMax(knowledge, None, False)
+            return None
 
 
 class DefenderStrategies(AgentStrategies):
+
+    refactor = False
+
     def __init__(self, params):
         super(DefenderStrategies, self).__init__(params)
 
@@ -174,7 +201,7 @@ class DefenderStrategies(AgentStrategies):
         Simulates attacks on the max probed server, reimags on success
         """
         if askTime:
-            return knowledge.time
+            return knowledge.time + float(params)
         else:
             choices = knowledge.getActiveResources()
             if choices:
@@ -191,13 +218,49 @@ class DefenderStrategies(AgentStrategies):
         # TODO
         # Same as attackers refactory
         # Implement by 03/22/2015
+        if askTime:
+            if knowledge.time < knowledge.previousTime:
+                return None
+            else:
+                params = params.split('_')
+                refactorTime = float(params[0])
+                mean = float(params[1])
+                diff = random.expovariate(1.0/mean)
+                return knowledge.time + diff + refactorTime
+        else:
+            return self.periodicMax(knowledge, None, False)
         return 0
 
-    def controlN(self, knowledge, N, askTime):
+    def controlN(self, knowledge, params, askTime):
         # TODO
         # Looks at the health of the system. If below, then get it back
         # Define assumptions appropriately
         # Implement by - 03/22/2015
+        # Assumptions -
+        # 1. Defender has full knowledge of the probability distribution
+        #    governing the growth of the attack vector
+        # 2. Defender has full view of the probes that have happened on the
+        #    servers at any point of time
+        # 3. Health of the system is defined as the probability that the
+        #    defender has control of at least N servers at any point of time
+        if askTime:
+            if DefenderStrategies.refactor:
+                params = params.split('_')
+                refactorTime = float(params[2])
+                DefenderStrategies.refactor = False
+                return knowledge.time + refactorTime
+            else:
+                return knowledge.time
+        else:
+            params = params.split('_')
+            N = int(params[0])
+            threshold = float(params[1])
+            health = knowledge.calculateHealth(N)
+            if health > threshold:
+                server = self.periodicMax(knowledge, None, False)
+                if server is not None:
+                    DefenderStrategies.refactor = True
+                return server
         return 0
 
     def greedy(self, ...):

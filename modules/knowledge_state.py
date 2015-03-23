@@ -1,4 +1,5 @@
 import math
+import itertools
 from copy import deepcopy
 
 debug = 0
@@ -174,3 +175,29 @@ class KnowledgeState(object):
                    and self.resources[name]["last probe"] > lastTime:
                     lastProbed = name
             return (lastProbed, lastTime)
+
+    def calculateHealth(self, N):
+        activeList = self.getActiveResources()
+        if activeList:
+            probMatrix = []
+            for server in activeList:
+                prob = self._computeProb(server)
+                probMatrix.append(prob)
+            print probMatrix
+
+            serverIter = itertools.combinations(
+                [i for i in range(len(probMatrix))], N)
+
+            health = 0
+
+            for comb in serverIter:
+                temp = 1
+                for ind, prob in enumerate(probMatrix):
+                    if ind in comb:
+                        temp *= probMatrix[ind]
+                    else:
+                        temp *= 1 - probMatrix[ind]
+                health += temp
+            return health
+        else:
+            return 0
