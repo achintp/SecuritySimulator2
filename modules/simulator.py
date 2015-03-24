@@ -209,7 +209,7 @@ class Simulator(object):
 
         #  Both the attacker and defender knowledge states should have the
         #  latest time accessible.
-        # print self.eventQueue
+        print self.eventQueue
         if(self.eventQueue[0][0] > self.params["endTime"]):
             # This is never going to happen since the endtime is a queued event
             assert(False)
