@@ -217,6 +217,7 @@ class Utility(object):
             for s, r in v.iteritems():
                 self.params["totalProbeCost"] += r["Total Probes till now"]
                 self.params["totalDowntime"] += r["Reimage Count"]
+
         self.params["totalDowntime"] *= downTime
         self.params["totalDowntimeCost"] = self.params["totalDowntime"]*dtCost
         payoff = {}
@@ -226,3 +227,51 @@ class Utility(object):
         payoff["DEF"] = self.params["DEF"]
         payoff["totalDowntime"] = self.params["totalDowntime"]
         return payoff
+
+
+class instUtility(object):
+    """
+    Gives the utility between two time periods
+    """
+
+    def __init__(self, cparams):
+        self.prCost = cparams["prCost"]
+        self.downTime = cparams["downTime"]
+
+        self.params['DEF'] = 0
+        self.params['ATT'] = 0
+        self.params['totalDowntimeCost'] = 0
+        self.params['totalProbeCost'] = 0
+        self.params['totalDowntime'] = 0
+
+        #  First element is slope and second is shift
+        self.attParam = []
+        self.defParam = []
+
+        self.attParam.append(self.cparams["attControlSlope"])
+        self.attParam.append(self.cparams["attControlShift"])
+        self.attParam.append(self.cparams["attDownSlope"])
+        self.attParam.append(self.cparams["attDownShift"])
+        self.defParam.append(self.cparams["defControlSlope"])
+        self.defParam.append(self.cparams["defControlShift"])
+        self.defParam.append(self.cparams["defDownSlope"])
+        self.defParam.append(self.cparams["defDownShift"])
+
+        #  Weights for the function
+        self.attParam.append(self.cparams["attControlWeight"])
+        self.attParam.append(1 - self.cparams["attControlWeight"])
+        self.defParam.append(self.cparams["defControlWeight"])
+        self.defParam.append(1 - self.cparams["defControlWeight"])
+
+        # print "Utility params"
+        # print attParam
+        # print defParam
+
+        self.attControlUtil = lambda(x): logistic(x, attParam[0], attParam[1])
+        self.attDownUtil = lambda(x): logistic(x, attParam[2], attParam[3])
+        self.defControlUtil = lambda(x): logistic(x, defParam[0], defParam[1])
+        self.defDownUtil = lambda(x): logistic(x, defParam[2], defParam[3])
+
+    def L2P(self, T1, T2):
+
+

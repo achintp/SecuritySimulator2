@@ -16,6 +16,13 @@ class StateManager(object):
         self.stateHistory = {}
         self.resourceReportList = {}
 
+        #  Keep track of instantaneous utility
+        self.lastAction = -1
+        self.cumulativeDefUtility = 0
+        self.cumulativeAttUtility = 0
+        self.recentDefUtility = 0
+        self.recentAttUtility = 0
+
         self.args = {}
         self.args["alpha"] = kwargs["alpha"]
         self.addResources(kwargs["resourceList"])
