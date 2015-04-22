@@ -271,8 +271,8 @@ class DefenderStrategies(AgentStrategies):
             if health > threshold:
                 # print "Fixing health"
                 server = self.periodicMax(knowledge, None, False)
-                if server is not None:
-                    DefenderStrategies.refactor = True
+                # if server is not None:
+                DefenderStrategies.refactor = True
                 return server
         return None
 

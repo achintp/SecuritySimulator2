@@ -19,6 +19,8 @@ def plot(p, q, r, s, w1, w2):
     res = []
     for item in zip(sig1, sig2):
         res.append(w1*item[0] + w2*item[1])
+    plt.xlabel("Number of resources controlled by agent + Number of resources down")
+    plt.ylabel("Payoff per unit time")
     plt.plot(x, res)
     plt.show()
 

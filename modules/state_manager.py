@@ -17,12 +17,7 @@ class StateManager(object):
         self.resourceReportList = {}
 
         #  Keep track of instantaneous utility
-        self.lastAction = -1
-        self.cumulativeDefUtility = 0
-        self.cumulativeAttUtility = 0
-        self.recentDefUtility = 0
-        self.recentAttUtility = 0
-
+        self.lastAction = (0, "START")
         self.args = {}
         self.args["alpha"] = kwargs["alpha"]
         self.addResources(kwargs["resourceList"])
@@ -87,3 +82,41 @@ class StateManager(object):
             print "In reimage"
             print resource
         self.activeResources[resource].reimage(time)
+
+    def setUtility(self, utilObj):
+        self.util = utilObj
+
+    def getUtilState(self):
+        downResources = len(self.inactiveResources)
+        attResources = 0
+        defResources = 0
+        for k, v in self.activeResources.iteritems():
+            if(v.controlledBy == "ATT"):
+                attResources += 1
+            if(v.controlledBy == "DEF"):
+                defResources += 1
+        return (attResources, defResources, downResources)
+
+    def updateLastAction(self, action, time):
+        """
+        action - 0 is probe
+                 1 is reimage
+                 2 is server wake
+                 -1 is the end
+        time - current time
+        """
+        if action == 0:
+            self.lastAction = (time, "ATT")
+        elif action == 1:
+            self.lastAction = (time, "DEF")
+        elif action == 2:
+            self.lastAction = (time, "WAKE")
+        elif action == -1:
+            self.lastAction = (time, "END")
+        else:
+            print "Unrecognized event in util update"
+            assert(False)
+
+    def updateUtility(self, time):
+        state = self.getUtilState()
+        self.util.L2P(state, time, self.lastAction)

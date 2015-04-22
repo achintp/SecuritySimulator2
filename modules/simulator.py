@@ -5,6 +5,7 @@ import types
 import debugging
 from state_manager import StateManager
 from utility import Utility
+from utility import instUtility
 
 
 class Simulator(object):
@@ -39,6 +40,7 @@ class Simulator(object):
         self.attSwitch = True  # For NO-OP, may not use this
         self.defSwitch = True  # FOr NO-OP, may noy use this
         self.probeToken = False
+        self.periodToken = False
         # token = "probe"  # Shift all these into inside the strategies
         self.debug = 0
         # Initialize the utility parameters
@@ -72,12 +74,18 @@ class Simulator(object):
 
         if 'probe' in self.defStrategy:
             self.probeToken = True
+        if 'periodic' in self.defStrategy:
+            self.periodToken = True
             # print "ProbeToken"
 
         # Initialize the state manager and the resources
         self.stateManager = StateManager(**{
             "resourceList": args["ResourceList"], "alpha": args["alpha"]})
         self.params["resourceReports"] = self.stateManager.resourceReportList
+
+        #  Give the state manager the utility object
+        utilObj = instUtility(self.utilParams)
+        self.stateManager.setUtility(utilObj)
 
         # Initialize the agents
         self.initAgents(args)
@@ -209,7 +217,7 @@ class Simulator(object):
 
         #  Both the attacker and defender knowledge states should have the
         #  latest time accessible.
-        print self.eventQueue
+        # print self.eventQueue
         if(self.eventQueue[0][0] > self.params["endTime"]):
             # This is never going to happen since the endtime is a queued event
             assert(False)
@@ -241,6 +249,9 @@ class Simulator(object):
             elif(it[2] == 2):
                 if(self.debug):
                     print it[1] + " is up and running"
+
+                #  Get the utility for the last time period
+                self.stateManager.updateUtility(self.params["currentTime"])
                 #  Update the server status in the state manager
                 self.stateManager.activeResources[it[1]] =\
                     self.stateManager.inactiveResources[it[1]]
@@ -250,6 +261,9 @@ class Simulator(object):
                 #  The defender knowledge state should be updated
                 self.defender.seeServerWake(self.params["currentTime"], it[1])
                 self.askDef = True
+                #  Update this action as last action that took place
+                self.stateManager.updateLastAction(
+                                    2, self.params["currentTime"])
                 # debugging.eventLog(it, it[1])
             #  For an attacker action
             elif(it[2] == 0):
@@ -260,6 +274,7 @@ class Simulator(object):
                     print "Ground truth before probe: "
                     print self.stateManager.activeResources
                 while(resourceName in self.stateManager.inactiveResources):
+                    #  TODO: This might forever loop, make changes
                     #  the server went down and the attacker didn't know
                     #  Update the attackers knowledge state
                     if(self.debug):
@@ -296,6 +311,10 @@ class Simulator(object):
                         # print "Defender seeing probe"
                         self.defender.seeProbe(resourceName,
                                                self.params["currentTime"])
+
+                    #  Update the utility
+                    self.stateManager.updateUtility(self.params["currentTime"])
+
                     #  Then update the ground truth with a probe
                     self.stateManager.probe(resourceName,
                                             self.params["currentTime"])
@@ -310,6 +329,9 @@ class Simulator(object):
                         #                        self.params["currentTime"])
                     self.askDef = True
                     self.askAtt = True
+                    # Update this action as last action that took place
+                    self.stateManager.updateLastAction(
+                                                0, self.params["currentTime"])
                 else:
                     #  In case a null action is seen do nothing. No need to ask
                     #  the defender since there's no change in his state
@@ -336,6 +358,11 @@ class Simulator(object):
                                 self.stateManager.activeResources)
                         # If the attacker loses control his state
                         # must be updated
+
+                        #  Update the utility
+                        self.stateManager.updateUtility(
+                                                    self.params["currentTime"])
+
                         if(self.stateManager.activeResources[resourceName]
                                 .getControl() == "ATT"):
                             self.attacker.seeReimage(
@@ -362,13 +389,23 @@ class Simulator(object):
                             self.params["downTime"]
                         self.eventQueue.append((wakeTime, resourceName, 2))
                         self.sortEventQueue()
+                        #  Update this action as last action that took place
+                        self.stateManager.updateLastAction(
+                                                1, self.params["currentTime"])
                 else:
                     #  No  action can be taken by the defender
                     assert(resourceName is None)
                     if self.probeToken:
                         self.askDef = False
                     else:
-                        self.askDe = True
+                        # This should not be true. You want the defender to take
+                        # another action only when it's state changes, there's no
+                        # point in queuing up another action if the state is the
+                        # same.
+                        # But this is going to lead to potential points where
+                        # the state doesn't change for either and the game ends
+                        # quickly
+                        self.askDef = False
                     self.askAtt = False
             elif(it[2] == 3):
                 #  Fake probe to be detected by the defender
@@ -419,12 +456,16 @@ class Simulator(object):
                 #                       self.stateManager.inactiveResources)
 
         #  Use the recorded history to get the utility
+        self.stateManager.updateUtility(self.params["currentTime"])
         self.updateInformation()
 
         #  Set up the utility function
-        u = Utility(self.utilParams)
-        utilFunc = u.getUtility(self.utilType)
-        payoff = utilFunc(self.stateManager.stateHistory)
+        # u = Utility(self.utilParams)
+        # utilFunc = u.getUtility(self.utilType)
+        # payoff = utilFunc(self.stateManager.stateHistory)
+        # print payoff
+        payoff = self.stateManager.util.getPayoff()
+        # print payoff
         #  if self.debug:
         # pprint.pprint(self.stateManager.stateHistory)
 
