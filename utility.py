@@ -271,7 +271,3 @@ class instUtility(object):
         self.attDownUtil = lambda(x): logistic(x, attParam[2], attParam[3])
         self.defControlUtil = lambda(x): logistic(x, defParam[0], defParam[1])
         self.defDownUtil = lambda(x): logistic(x, defParam[2], defParam[3])
-
-    def L2P(self, T1, T2):
-
-

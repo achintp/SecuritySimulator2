@@ -276,6 +276,33 @@ class DefenderStrategies(AgentStrategies):
                 return server
         return None
 
+    def controlThreshold(self, knowledge, params, askTime):
+        # will calculate the expexted fraction of servers under the control
+        # attacker, and if it's above the threshold then will reimage the 
+        # most probed server to get it below the threshold again
+        if askTime:
+            if knowledge.time < knowledge.previousTime:
+                return None
+            if DefenderStrategies.refactor:
+                params = params.split('_')
+                refactorTime = float(params[1])
+                DefenderStrategies.refactor = False
+                return knowledge.time + refactorTime
+            else:
+                return knowledge.time
+        else:
+            params = params.split('_')
+            N = float(params[0])
+            expectation = knowledge.calculateExpectation()
+            print "Expectation is: " + str(expectation)
+            if expectation > N:
+                print "Reducing expectation - story of my life"
+                server = self.periodicMax(knowledge, None, False)
+                if server is not None:
+                    DefenderStrategies.refactor = True
+                return server
+        return None
+
     def greedy(self):
         # Maximizes the local benefit
         # High priority

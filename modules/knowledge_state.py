@@ -201,3 +201,15 @@ class KnowledgeState(object):
             return health
         else:
             return 0
+
+    def calculateExpectation(self):
+        activeList = self.getActiveResources()
+        expectation = 0
+        if activeList:
+            for server in activeList:
+                prob = self._computeProb(server)
+                expectation += prob
+            N = len(activeList)
+            expectation /= N
+        print "expected number of servers is: " + str(expectation)
+        return expectation
