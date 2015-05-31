@@ -1,11 +1,11 @@
 {
 	"assignment": {
 		"ATT": [
-			"periodic-10"
+			"controlN-1_5"
 		],
 
 		"DEF": [
-			"periodic-0.5"
+			"controlThreshold-0.01_1"
 		]
 	},
 
@@ -14,17 +14,17 @@
 		"dtCost": "0.3",
 		"prCost": "0.2",
 		"runs per sample": "1",
-		"alpha": "0.01",
+		"alpha": "0.05",
 		"downTime": "7",
         "Probe miss rate": "0",
         "False probe rate": "0",
         "Attacker Control Slope": "1",
-        "Attacker Control Shift": "0.5",
+        "Attacker Control Shift": "0.8",
         "Attacker Down Slope": "1",
-        "Attacker Down Shift": "0.5",
-        "Attacker Control Weight" : "0.5",
+        "Attacker Down Shift": "0",
+        "Attacker Control Weight" : "1",
         "Defender Control Slope" : "5",
-        "Defender Control Shift": "0.95",
+        "Defender Control Shift": "0.8",
         "Defender Down Slope": "1",
         "Defender Down Shift": "0",
         "Defender Control Weight": "1",

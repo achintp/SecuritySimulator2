@@ -211,5 +211,5 @@ class KnowledgeState(object):
                 expectation += prob
             N = len(activeList)
             expectation /= N
-        print "expected number of servers is: " + str(expectation)
+        # print "expected number of servers is: " + str(expectation)
         return expectation

@@ -281,7 +281,7 @@ class DefenderStrategies(AgentStrategies):
         # attacker, and if it's above the threshold then will reimage the 
         # most probed server to get it below the threshold again
         if askTime:
-            if knowledge.time < knowledge.previousTime:
+            if knowledge.time <= knowledge.previousTime:
                 return None
             if DefenderStrategies.refactor:
                 params = params.split('_')
@@ -294,9 +294,9 @@ class DefenderStrategies(AgentStrategies):
             params = params.split('_')
             N = float(params[0])
             expectation = knowledge.calculateExpectation()
-            print "Expectation is: " + str(expectation)
+            # print "Expectation is: " + str(expectation)
             if expectation > N:
-                print "Reducing expectation - story of my life"
+                # print "Reducing expectation - story of my life"
                 server = self.periodicMax(knowledge, None, False)
                 if server is not None:
                     DefenderStrategies.refactor = True
