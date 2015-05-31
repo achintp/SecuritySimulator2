@@ -1,16 +1,16 @@
 {
 	"assignment": {
 		"ATT": [
-			"periodic-0.1"
+			"periodic-10"
 		],
 
 		"DEF": [
-			"controlN-2_0.0001_0"
+			"periodic-0.5"
 		]
 	},
 
 	"configuration":{
-		"endTime": "1000",
+		"endTime": "100",
 		"dtCost": "0.3",
 		"prCost": "0.2",
 		"runs per sample": "1",

@@ -238,36 +238,111 @@ class instUtility(object):
         self.prCost = cparams["prCost"]
         self.downTime = cparams["downTime"]
 
-        self.params['DEF'] = 0
-        self.params['ATT'] = 0
-        self.params['totalDowntimeCost'] = 0
-        self.params['totalProbeCost'] = 0
-        self.params['totalDowntime'] = 0
+        self.cumulativeDef = 0
+        self.cumulativeAtt = 0
+        self.lastDef = 0
+        self.lastAtt = 0
+        self.totalProbeCost = 0
+        self.totalDowntime = 0
 
         #  First element is slope and second is shift
         self.attParam = []
         self.defParam = []
 
-        self.attParam.append(self.cparams["attControlSlope"])
-        self.attParam.append(self.cparams["attControlShift"])
-        self.attParam.append(self.cparams["attDownSlope"])
-        self.attParam.append(self.cparams["attDownShift"])
-        self.defParam.append(self.cparams["defControlSlope"])
-        self.defParam.append(self.cparams["defControlShift"])
-        self.defParam.append(self.cparams["defDownSlope"])
-        self.defParam.append(self.cparams["defDownShift"])
+        self.attParam.append(cparams["attControlSlope"])
+        self.attParam.append(cparams["attControlShift"])
+        self.attParam.append(cparams["attDownSlope"])
+        self.attParam.append(cparams["attDownShift"])
+        self.defParam.append(cparams["defControlSlope"])
+        self.defParam.append(cparams["defControlShift"])
+        self.defParam.append(cparams["defDownSlope"])
+        self.defParam.append(cparams["defDownShift"])
 
         #  Weights for the function
-        self.attParam.append(self.cparams["attControlWeight"])
-        self.attParam.append(1 - self.cparams["attControlWeight"])
-        self.defParam.append(self.cparams["defControlWeight"])
-        self.defParam.append(1 - self.cparams["defControlWeight"])
+        self.attParam.append(cparams["attControlWeight"])
+        self.attParam.append(1 - cparams["attControlWeight"])
+        self.defParam.append(cparams["defControlWeight"])
+        self.defParam.append(1 - cparams["defControlWeight"])
 
         # print "Utility params"
         # print attParam
         # print defParam
 
-        self.attControlUtil = lambda(x): logistic(x, attParam[0], attParam[1])
-        self.attDownUtil = lambda(x): logistic(x, attParam[2], attParam[3])
-        self.defControlUtil = lambda(x): logistic(x, defParam[0], defParam[1])
-        self.defDownUtil = lambda(x): logistic(x, defParam[2], defParam[3])
+        self.attControlUtil = lambda(x): logistic(x, self.attParam[0],
+                                                  self.attParam[1])
+        self.attDownUtil = lambda(x): logistic(x, self.attParam[2],
+                                               self.attParam[3])
+        self.defControlUtil = lambda(x): logistic(x, self.defParam[0],
+                                                  self.defParam[1])
+        self.defDownUtil = lambda(x): logistic(x, self.defParam[2],
+                                               self.defParam[3])
+
+    def L2P(self, state, currentTime, lastAction):
+        """
+        state - (servers in control of att,
+                 servers in control of def,
+                 servers down)
+        currentTime - current time
+        lastAction -(time, player)
+        """
+
+        delta = currentTime - lastAction[0]
+        attResources = state[0]
+        defResources = state[1]
+        dwnResources = state[2]
+
+        # Increment cumulative defender utility
+        utilDefNow = delta*(
+                            self.defParam[4] *
+                            self.defControlUtil(defResources) +
+                            self.defParam[5] *
+                            self.defDownUtil(defResources + dwnResources))
+
+        # if the last action was not the defender it's most recent utility
+        # becomes for this + previous time interval
+        if lastAction[1] != "DEF":
+            self.lastDef += utilDefNow
+        # if the last action is defender it's most recent utility becomes for
+        # this time interval
+        else:
+            self.lastDef = utilDefNow
+
+        # Increment the cumulative utility
+        self.cumulativeDef += utilDefNow
+
+        utilAttNow = delta*(
+                            self.attParam[4] *
+                            self.attControlUtil(attResources) +
+                            self.attParam[5] *
+                            self.attDownUtil(attResources + dwnResources))
+
+        # if the previous action was not attacker then don't subtract the probe
+        # cost from the latest util
+        if lastAction[1] != "ATT":
+            self.lastAtt += utilAttNow
+            self.cumulativeAtt += utilAttNow
+        else:
+            self.lastAtt = utilAttNow + self.prCost
+            self.cumulativeAtt += utilAttNow + self.prCost
+
+    def getCumulativeAttUtility(self):
+        return self.cumulativeAtt
+
+    def getCumulativeDefUtility(self):
+        return self.cumulativeDef
+
+    def getPreviousDefUtility(self):
+        return self.lastDef
+
+    def getPreviousAttUtility(self):
+        return self.lastAtt
+
+    def getPayoff(self):
+        payoff = {
+            "ATT": self.cumulativeAtt,
+            "DEF": self.cumulativeDef,
+            "totalProbes": -1,
+            "totalDowntime": -1
+        }
+
+        return payoff
