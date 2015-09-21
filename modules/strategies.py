@@ -10,8 +10,7 @@ class AgentStrategies(object):
 
     def getStrategy(self, strategy):
         if hasattr(self, strategy):
-            return getattr(self, strategy)
-
+            return getattr(self, strategy)            
 
 class AttackerStrategies(AgentStrategies):
     def __init__(self, params):

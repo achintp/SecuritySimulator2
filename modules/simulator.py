@@ -137,9 +137,18 @@ class Simulator(object):
                 "strategy": v,
                 "resourceList": args["ResourceList"],
                 "time": self.params["currentTime"],
-                "alpha": args["alpha"]
+                "alpha": args["alpha"],
+                "miss" : 0 if self.missRate is None else self.missRate,
+                "weights" : args["weights"]
                 }
-            self.defender = agents.Defender(**d)
+
+            strategyName = v.split("-")[0];
+            if strategyName == "learner":
+                self.defender = agents.LearnerDefender(**d)
+                self.defenderIsLearner = True
+            else:
+                self.defender = agents.Defender(**d)
+                self.defenderIsLearner = False
 
     def updateInformation(self):
         # Should update the ground truth information state
@@ -332,6 +341,7 @@ class Simulator(object):
                     # Update this action as last action that took place
                     self.stateManager.updateLastAction(
                                                 0, self.params["currentTime"])
+                    self.attacker.knowledge.actionTaken();
                 else:
                     #  In case a null action is seen do nothing. No need to ask
                     #  the defender since there's no change in his state
@@ -342,7 +352,11 @@ class Simulator(object):
             #  For a defender action
             elif(it[2] == 1):
                 # print "Here"
-                resourceName = self.defender.getAction()
+                if self.defenderIsLearner:
+                    payoff = self.stateManager.util.getPayoff()["DEF"]                    
+                    resourceName = self.defender.getAction(payoff)
+                else:
+                    resourceName = self.defender.getAction()
                 #  A defender will never reimage a server that is down
                 #  Change the ground truth
                 if(resourceName):
@@ -392,6 +406,7 @@ class Simulator(object):
                         #  Update this action as last action that took place
                         self.stateManager.updateLastAction(
                                                 1, self.params["currentTime"])
+                        self.defender.knowledge.actionTaken()
                 else:
                     #  No  action can be taken by the defender
                     assert(resourceName is None)
@@ -438,6 +453,12 @@ class Simulator(object):
 
         nextTime = random.expovariate(self.falseRate)
         return nextTime
+
+    def getDefenderGradient(self):
+        if hasattr(self.defender, "Grad"):
+            return self.defender.Grad;
+        else:
+            return None;
 
     def simulate(self):
         # Starts the simulation

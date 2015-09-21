@@ -1,0 +1,10 @@
+{'distributions' : [{u'data': {u'ATT': {u'No-Op': 0.1699216209,
+                     u'controlN-1_8': 0.0572881976,
+                     u'periodic-1': 0.7727901815},
+            u'DEF': {u'controlN-2_0.001_1': 0.0281339348,
+                     u'probeCountTime-4_50': 0.3621890467,
+                     u'refactoryRenewal-0_1': 0.6096770185}},
+  u'payoffs': {u'ATT': {u'payoff': 2.083976491107311e-08},
+               u'DEF': {u'payoff': 229.4214758428574}},
+  u'type': u'GA_Profile'}]
+}

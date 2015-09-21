@@ -1,5 +1,6 @@
 import math
 import itertools
+import numpy as np
 from copy import deepcopy
 
 debug = 0
@@ -32,9 +33,18 @@ class KnowledgeState(object):
         self.time = args["time"]
         self.owner = owner
         self.alpha = args["alpha"]
+
+        if "miss" in args:
+            self.miss = args["miss"];
+        else:
+            self.miss = 0;
+
         self.actionHistory = {}
         self.previousAction = 0
         self.previousTime = 0  # Unused for now
+        
+        self.lastActionTime = 0;
+
         if debug:
             print self.owner
 
@@ -143,7 +153,7 @@ class KnowledgeState(object):
         else:
             # print "Getting probability - computing"
             return (1 - math.exp(-self.alpha * self.resources[resource][
-                    "probes since last reimage"]))
+                    "probes since last reimage"]/float(1 - self.miss)))
             # print self.resources[resource]["probability of compromise"]
 
     def computeProb(self, resource):
@@ -163,18 +173,21 @@ class KnowledgeState(object):
             assert(maxServer is not None)
             return maxServer
         else:
-            return None
+            return None    
 
-    def getLastProbed(self):
-        activeList = self.getActiveResources()
-        if activeList:
+    def getLastProbed(self, list):
+        #activeList = self.getActiveResources()
+        #if activeList:
+        if list:
             lastProbed = None
             lastTime = -1
-            for name in activeList:
+            for name in list:
                 if self.resources[name]["probes since last reimage"] > 0\
                    and self.resources[name]["last probe"] > lastTime:
                     lastProbed = name
             return (lastProbed, lastTime)
+        else:
+            return (None, -1)
 
     def calculateHealth(self, N):
         activeList = self.getActiveResources()
@@ -213,3 +226,214 @@ class KnowledgeState(object):
             expectation /= N
         # print "expected number of servers is: " + str(expectation)
         return expectation
+
+    def actionTaken(self):
+        self.lastActionTime = self.time;
+
+    def periodsElapsed(self, eventTime, period):
+        return (self.time - eventTime)/period;
+
+    # This function computes all the features that might be used by
+    # a learning algorithm. These are features that are ``machine
+    # independent.''
+    def calculateInvariantLearningFeatures(self, period):
+        totalProbed = 0;
+        
+        #(P)eriods (E)lapsed (S)ince Post-Reimage (P)robe
+        averagePESPIfProbed = 0; 
+        maxPESPIfProbed = 0;
+        minPESPIfProbed = float("inf");
+
+        #(P)eriods (E)lapsed (S)ince (R)eimage
+        averagePESR = 0;
+        averagePESRIfProbed = 0;
+        maxPESR = 0;
+        maxPESRIfProbed = 0;
+        
+        averageProbeCount = 0; 
+        averageProbeCountIfProbed = 0;
+        maxProbe = 0; 
+        maxCompromiseProb = 0;
+
+        upEstimate = self.calculateExpectation();
+
+        for name, info in self.resources.iteritems():
+            periodsElapsedSinceProbed = \
+                self.periodsElapsed(self.getLastProbe(name), period);
+            
+            periodsElapsedSinceReimage = \
+                self.periodsElapsed(self.getLastReimage(name), period);
+            averagePESR += periodsElapsedSinceReimage;
+
+            probeCount = self.getProbesSinceLastReimage(name);
+
+            compromiseProbability = self.getProbability(name);
+
+            if probeCount > maxProbe:
+                maxProbe = probeCount;
+            if periodsElapsedSinceReimage > maxPESR:
+                maxPESR = periodsElapsedSinceReimage;
+            if compromiseProbability > maxCompromiseProb:
+                maxCompromiseProb = compromiseProbability;
+                    
+            if info["status"] == "PROBED":
+                totalProbed += 1;
+                averagePESPIfProbed += periodsElapsedSinceProbed;
+                averagePESRIfProbed += periodsElapsedSinceReimage;
+                averageProbeCountIfProbed += probeCount;
+                if periodsElapsedSinceReimage > maxPESRIfProbed:
+                    maxPESRIfProbed = periodsElapsedSinceReimage
+                if periodsElapsedSinceProbed > maxPESPIfProbed:
+                    maxPESPIfProbed = periodsElapsedSinceProbed
+
+        numResources = len(self.resources);
+        fracProbed = totalProbed/numResources;
+        averageProbeCount = averageProbeCount/numResources;
+        averagePESR = averagePESR/numResources;
+
+        if totalProbed > 0:
+            averagePESPIfProbed = averagePESPIfProbed/totalProbed;
+            averagePESRIfProbed = averagePESRIfProbed/totalProbed;
+            averageProbeCountIfProbed = averageProbeCountIfProbed/totalProbed;
+                    
+
+        periodsSinceAction = self.periodsElapsed(self.lastActionTime, period);
+
+        invariantFeatures = {"constant" : 1, "fracProbed": fracProbed, \
+                                 "periodsSinceAction" : periodsSinceAction, \
+                                 "averagePESR" : averagePESR, \
+                                 "averagePESRIfProbed" : averagePESRIfProbed, \
+                                 "maxPESR" : maxPESR, \
+                                 "maxPESRIfProbed": maxPESRIfProbed, \
+                                 "averagePESPIfProbed" : averagePESPIfProbed, \
+                                 "maxPESPIfProbed" : maxPESPIfProbed, \
+                                 "averageProbeCount" : averageProbeCount, \
+                                 "averageProbeCountIfProbed" : averageProbeCountIfProbed, \
+                                 "maxProbe" : maxProbe, \
+                                 "maxCompromiseProb" : maxCompromiseProb, \
+                                 "upEstimate" : upEstimate };
+
+        return invariantFeatures;
+
+    def calculateLastTwoResources(self):
+        activeList = self.getActiveResources();
+        lastProbed = self.getLastProbed(activeList)[0];
+        if lastProbed is None:
+            return (None, None);    
+
+        newList = list(activeList);
+        newList.remove(lastProbed);
+        penultimateProbed = self.getLastProbed(newList)[0];
+        if penultimateProbed is None:
+            return (lastProbed, None);
+
+        return (lastProbed, penultimateProbed);
+
+    # Return matrix of all features as a numpy matrix. 
+    def calculateAllResourceFeaturesMatrix(self, period):
+        invariantFeatures = self.calculateInvariantLearningFeatures(period);
+        
+        invariantFeaturesAsList = \
+            [ invariantFeatures[key] for key in sorted(invariantFeatures.keys())];
+
+        lastProbed = self.calculateLastTwoResources();
+        
+        allFeatures = None;
+
+        index = 1;
+        indexToNameMap = {};
+        for name in sorted(self.resources.keys()):
+            indexToNameMap[index] = name; index += 1;
+
+            resourceSpecificFeatures = \
+                self.calculateResourceFeatures(name, period, invariantFeatures, lastProbed)
+            allResourceFeatures = list(invariantFeaturesAsList);
+            allResourceFeatures.extend(resourceSpecificFeatures);
+            if allFeatures is None:
+                allFeatures = np.array(allResourceFeatures);
+            else:
+                allFeatures = np.vstack([allFeatures, np.array(allResourceFeatures)]);
+
+
+        numFeatures = allFeatures.shape[1];        
+        noneFeatures = [1];
+        noneFeatures.extend([0] * (numFeatures - 1));
+
+        allFeatures = np.vstack([np.array(noneFeatures), allFeatures]);
+        indexToNameMap[0] = None;        
+
+        if debug: 
+            print "All features: ", allFeatures;
+        
+        return (allFeatures, indexToNameMap);
+
+
+    def calculateResourceFeatures(self, name, period, invariant, lastProbed):        
+        # invariant is a dictionary containing the invariant features, 
+        # and is used to speed up computations. lastProbed a tuple of the 
+        # names (possibly None) of the two last machines to be probed and 
+        # have not been reimaged. This is also passed to save computation.  
+
+        # Total number features including the NO-OP feature.
+        # Should think of a way to do this without hardcoding
+        # this number. 
+        #numberFeatures = 15;        
+              
+        #if name is None:
+        #    return [1].append([0] * (numberFeatures - 1));
+        
+        features = [0];
+
+        hasBeenProbed = int(self.resources[name]["status"] == "PROBED");
+        features.append(hasBeenProbed); 
+    
+        probeCount = self.getProbesSinceLastReimage(name);
+        features.append(probeCount); 
+        
+        compromiseProbability = self.getProbability(name);
+        features.append(compromiseProbability); 
+
+        periodsElapsedSinceReimage = \
+            self.periodsElapsed(self.getLastReimage(name), period);
+        
+        features.append(periodsElapsedSinceReimage); 
+        features.append(periodsElapsedSinceReimage*hasBeenProbed); 
+        
+        periodsElapsedSinceProbed = \
+            self.periodsElapsed(self.getLastProbe(name), period);
+        features.append(periodsElapsedSinceProbed); 
+        features.append(periodsElapsedSinceProbed*hasBeenProbed);
+
+        isLast = int(lastProbed[0] == name);
+        features.append(isLast); 
+
+        isSwitch = int(lastProbed[1] == name);
+        features.append(isSwitch); 
+
+        # The remianing features are booleans indicating whether 
+        # the machine is the one that attains each of the extremal 
+        # (max/min) features among the invariant features. 
+        isMaxPESR = int(periodsElapsedSinceReimage == invariant["maxPESR"]);
+        features.append(isMaxPESR); 
+        
+        isMaxPESRProbed = \
+            hasBeenProbed*int(periodsElapsedSinceReimage == invariant["maxPESRIfProbed"]);
+        features.append(isMaxPESRProbed); 
+
+        isMaxPESPIfProbed = \
+            hasBeenProbed*int(periodsElapsedSinceProbed == invariant["maxPESPIfProbed"]);
+        features.append(isMaxPESPIfProbed); 
+
+        isMaxProbe = \
+            int(probeCount == invariant["maxProbe"]);
+        features.append(isMaxProbe); 
+
+        isMaxCompromised = \
+            int(compromiseProbability == invariant["maxCompromiseProb"]);
+        features.append(isMaxCompromised); 
+
+        isDown = \
+            int(self.resources[name]["status"] == "DOWN");
+        features.append(isDown);
+
+        return features;

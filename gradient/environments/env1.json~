@@ -1,32 +1,32 @@
 {
 	"assignment": {
 		"ATT": [
-			"controlN-1_5"
+
 		],
 
 		"DEF": [
-			"learner-1_0.8"
+			"learner-0.1_0.8"
 		]
 	},
 
 	"configuration":{
-		"endTime": "100",
-		"dtCost": "0.3",
-		"prCost": "0.2",
+		"endTime": "1000",
+		"dtCost": "0.0",
+		"prCost": "0.5",
 		"runs per sample": "1",
 		"alpha": "0.05",
 		"downTime": "7",
-        "Probe miss rate": "0",
+        "Probe miss rate": "0.5",
         "False probe rate": "0",
-        "Attacker Control Slope": "1",
+        "Attacker Control Slope": "5",
         "Attacker Control Shift": "0.8",
-        "Attacker Down Slope": "1",
-        "Attacker Down Shift": "0",
+        "Attacker Down Slope": "5",
+        "Attacker Down Shift": "0.8",
         "Attacker Control Weight" : "1",
         "Defender Control Slope" : "5",
         "Defender Control Shift": "0.8",
-        "Defender Down Slope": "1",
-        "Defender Down Shift": "0",
+        "Defender Down Slope": "5",
+        "Defender Down Shift": "0.8",
         "Defender Control Weight": "1",
         "resources": "10"
  
