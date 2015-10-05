@@ -83,8 +83,8 @@ def doDescent(attackers, e, dist_index):
     print "initializing run..."
     (currentPayoff, currentGradient) = evaluateWeights(attackers, e, workingdir, weightsFile="", init=True);
 
-    currentWeights = np.random.random_sample(currentGradient.shape)/100;
-    #currentWeights = np.zeros(currentGradient.shape);
+    #currentWeights = np.random.random_sample(currentGradient.shape)/100;
+    currentWeights = np.zeros(currentGradient.shape);
     with open(workingdir + "/currentWeights.json", "w") as f:
         json.dump(currentWeights.transpose().tolist(), f);
 
@@ -118,7 +118,7 @@ def doDescent(attackers, e, dist_index):
             (currentPayoff, currentGradient) = evaluateWeights(attackers, e, workingdir, weightsFile="currentWeights.json");
         
 def main():
-    for e in [4]:
+    for e in [6]:
         with open("environments/env" + str(e) + "_dist.json") as f:
             data = json.loads(json.dumps(eval(f.read())))
 

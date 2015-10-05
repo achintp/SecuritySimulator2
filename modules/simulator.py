@@ -127,9 +127,17 @@ class Simulator(object):
                 "strategy": v,
                 "resourceList": args["ResourceList"],
                 "time": self.params["currentTime"],
-                "alpha": args["alpha"]
+                "alpha": args["alpha"],
+                "weights" : args["weights"]
                 }
-            self.attacker = agents.Attacker(**d)
+
+            strategyName = v.split("-")[0];
+            if strategyName == "learner":
+                self.attacker = agents.LearnerAttacker(**d)
+                self.attackerIsLearner = True
+            else:
+                self.attacker = agents.Attacker(**d)
+                self.attackerIsLearner = False
 
         for k, v in args["defenderList"].iteritems():
             d = {
@@ -276,7 +284,12 @@ class Simulator(object):
                 # debugging.eventLog(it, it[1])
             #  For an attacker action
             elif(it[2] == 0):
-                resourceName = self.attacker.getAction()
+                if self.attackerIsLearner:
+                    payoff = self.stateManager.util.getPayoff()["ATT"]                    
+                    resourceName = self.attacker.getAction(payoff)
+                else:
+                    resourceName = self.attacker.getAction()
+
                 #  In case the server went down without his knowledge
                 #  is the probe wasted or not?
                 if self.debug:
