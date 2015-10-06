@@ -19,7 +19,7 @@ def selectAttacker(attackers):
             cumulative += probability
     return previousName
 
-def evaluateWeights(attackers, e, workingdir, weightsFile="", init=False):
+def evaluateWeights(attackers, environmnet_json, results, weightsFile="", init=False):
     avgGradient = None;
     avgPayoff = 0;
 
@@ -31,16 +31,16 @@ def evaluateWeights(attackers, e, workingdir, weightsFile="", init=False):
 
         for attacker, probability in attackers.iteritems():
 
-            with open('environments/env' + str(e) + '.json') as f:
+            with open(environment_json) as f:
                 data = json.load(f);
                 data["assignment"]["ATT"].append(attacker);
     
-                with open(workingdir + "/simulation_spec.json", "w") as f:
+                with open(results + "/simulation_spec.json", "w") as f:
                     json.dump(data, f, indent = 2);
         
-                subprocess.call("python ../runSimulator.py ./" + workingdir + " 1 " + weightsFile, shell=True)
+                subprocess.call("python ../runSimulator.py ./" + results + " 1 " + weightsFile, shell=True)
 
-                with open(workingdir + "/observation_0.json", "r") as f:
+                with open(results + "/observation_0.json", "r") as f:
                     result = json.load(f);
         
                 for player in result["players"]:
@@ -69,11 +69,12 @@ def evaluateWeights(attackers, e, workingdir, weightsFile="", init=False):
     return (avgPayoff, avgGradient)
 
 
-def doDescent(attackers, e, dist_index):
+def doDescent(attackers, environment_json, dist_index):
     os.chdir(os.getcwd());
-    workingdir = "results2/env" + str(e) + "_dist" + str(dist_index);
+    results = "results_directory"
+
     try:
-        os.mkdir(workingdir);
+        os.mkdir(results);
     except OSError as exc: 
         pass
 
@@ -81,29 +82,28 @@ def doDescent(attackers, e, dist_index):
 
 
     print "initializing run..."
-    (currentPayoff, currentGradient) = evaluateWeights(attackers, e, workingdir, weightsFile="", init=True);
+    (currentPayoff, currentGradient) = evaluateWeights(attackers, environments_json, results, weightsFile="", init=True);
 
     #currentWeights = np.random.random_sample(currentGradient.shape)/100;
     currentWeights = np.zeros(currentGradient.shape);
-    with open(workingdir + "/currentWeights.json", "w") as f:
+    with open(results + "/currentWeights.json", "w") as f:
         json.dump(currentWeights.transpose().tolist(), f);
 
     print "first run..."
-    (currentPayoff, currentGradient) = evaluateWeights(attackers, e, workingdir, weightsFile="currentWeights.json");
+    (currentPayoff, currentGradient) = evaluateWeights(attackers, environments_json, results, weightsFile="currentWeights.json");
     print "Payoff is now:", currentPayoff
 
     while stepsize > .001: 
         print currentWeights;
-#        print currentGradient
         candidateWeights = currentWeights + stepsize*currentGradient;
-#        print "New candidate weights are: " + str(candidateWeights)
-        with open(workingdir + "/candidateWeights.json", "w") as f:
+
+        with open(results + "/candidateWeights.json", "w") as f:
             json.dump(candidateWeights.transpose().tolist(), f);
-        (nextPayoff, nextGradient) = evaluateWeights(attackers, e, workingdir, weightsFile="candidateWeights.json");
-#        print "Next gradient is: ", nextGradient
+        (nextPayoff, nextGradient) = evaluateWeights(attackers, environments_json, results, weightsFile="candidateWeights.json");
+
         if nextPayoff > currentPayoff:
             print "taking gradient step..."
-            with open(workingdir + "/currentWeights.json", "w") as f:
+            with open(results + "/currentWeights.json", "w") as f:
                 json.dump(candidateWeights.transpose().tolist(), f);
             currentPayoff = nextPayoff;
             currentGradient = nextGradient
@@ -115,22 +115,21 @@ def doDescent(attackers, e, dist_index):
             stepsize = stepsize/float(2)        
             print "reducing step size to...", stepsize
             print "recalculating payoff and gradient..."
-            (currentPayoff, currentGradient) = evaluateWeights(attackers, e, workingdir, weightsFile="currentWeights.json");
+            (currentPayoff, currentGradient) = evaluateWeights(attackers, environmnet_json, results, weightsFile="currentWeights.json");
         
 def main():
-    for e in [6]:
-        with open("environments/env" + str(e) + "_dist.json") as f:
-            data = json.loads(json.dumps(eval(f.read())))
+    environment_json = "";
+    distribution_json = "";
 
-        distributions = data['distributions'];
+    with open(distribution_json) as f:
+        data = json.loads(json.dumps(eval(f.read())))
+    
+    distributions = data['distributions'];
 
-        index = 0;
-        for distribution in distributions:
-            attackers = distribution["data"]["ATT"];
-            print "Learning against attackers:", attackers
-            print "Defender Payoff:", distribution["payoffs"]["DEF"]["payoff"]
-            doDescent(attackers, e, index)
-            index += 1;
+    for distribution in distributions:
+        attackers = distribution["data"]["ATT"];
+        doDescent(attackers, environment_json, index)
+
 
 if __name__ == '__main__':
     main()
