@@ -153,6 +153,9 @@ class Learner(Agent):
         if hasattr(self, "strategy"):
             self.decideAction = getattr(self, "learnerAction")
 
+    def getAction(self, reward=None):
+	return self.decideAction(self.knowledge, self.stParam, False, reward)
+
     def learnerAction(self, knowledge, params, askTime, newPayoff = None):
         params = params.split("_");
         period = float(params[0]);

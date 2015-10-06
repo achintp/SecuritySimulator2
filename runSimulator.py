@@ -107,11 +107,11 @@ def writeJson(payoffs, gradient, obs, args):
             "role": "ATT",
             "strategy": strategy,
             # "Total Probes":payoffs['totalProbes'],
-            "payoff": payoffs["ATT"]
+            "payoff": payoffs["ATT"],
             })
 
-	features = {}
-	features['gradients'] = gradient.transpose().tolist()
+#	features = {}
+#	features['gradients'] = gradient.transpose().tolist()
 
         for name, strategy in args['defenderList'].iteritems():
             payoff['players'].append({
@@ -120,7 +120,8 @@ def writeJson(payoffs, gradient, obs, args):
                 "strategy": strategy,
                 #"Total Downtime":payoffs['totalDownTime'],
                 "payoff": payoffs["DEF"],
-                "features": features
+                #"features": features,
+	    	"gradient": gradient.transpose().tolist()
                 })
 
             with open(args['IOFolder'] + "/observation_" + str(obs)
