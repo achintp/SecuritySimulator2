@@ -4,25 +4,30 @@ import modules.simulator as Simulator
 import os
 import numpy as np
 
-def readJson(jsonFolder, weightsFile):
+def readJson(jsonFolder):
     with open(jsonFolder + "/simulation_spec.json") as f:
         data = json.load(f)
     
+    assign = data["assignment"]
+    config = data["configuration"]
+    weightsFile = config["weightsFile"]
     if weightsFile == "":
         weights = None;
     else:
-        weightsFile = jsonFolder + "/" + weightsFile;
-
+	# This has to be changed
+	weightsFolder = "/nfs/wellman_ls/SecurityGame/weights/"
+        weightsFile = weightsFolder + "/" + weightsFile;
+	#print "using file"
         if os.path.isfile(weightsFile):        
             with open(weightsFile) as f:
                 weights = json.load(f)
                 weights = np.asarray(weights);
                 weights = weights.transpose();
-#                print "using weights:", weights
+                #print "using weights:", weights
         else:
             print "warning: specified weights file '" + weightsFile + "' not found, proceeding without..."
-    assign = data["assignment"]
-    config = data["configuration"]
+   # assign = data["assignment"]
+   # config = data["configuration"]
     params = {}
 
     params["weights"] = weights
@@ -86,10 +91,10 @@ def parseArgs():
     parser = ArgumentParser()
     parser.add_argument('jsonFolder', type=str)
     parser.add_argument('samples', type=int)
-    parser.add_argument('weightsFile', type=str, nargs="?", default="")
+    #parser.add_argument('weightsFile', type=str, nargs="?", default="")
     args = parser.parse_args()
 
-    params = readJson(args.jsonFolder, args.weightsFile)
+    params = readJson(args.jsonFolder)
     params["samples"] = args.samples
     return params
 
@@ -105,6 +110,9 @@ def writeJson(payoffs, gradient, obs, args):
             "payoff": payoffs["ATT"]
             })
 
+	features = {}
+	features['gradients'] = gradient.transpose().tolist()
+
         for name, strategy in args['defenderList'].iteritems():
             payoff['players'].append({
                 # "Name":name,
@@ -112,7 +120,7 @@ def writeJson(payoffs, gradient, obs, args):
                 "strategy": strategy,
                 #"Total Downtime":payoffs['totalDownTime'],
                 "payoff": payoffs["DEF"],
-                "gradient" : gradient.transpose().tolist()
+                "features": features
                 })
 
             with open(args['IOFolder'] + "/observation_" + str(obs)
@@ -149,8 +157,11 @@ def main():
             
             for k, v in payoff.iteritems():
                 cPayoff[k] += v
-
-        defGradient /= rps
+	
+	if defGradient is not None:
+        	defGradient /= rps
+	else:
+		defGradient = np.zeros(1) 
 
         for k, v in cPayoff.iteritems():
             # print cPayoff[k]

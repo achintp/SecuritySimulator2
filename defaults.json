@@ -18,7 +18,8 @@
         "Defender Control Shift": "0",
         "Defender Down Slope": "1",
         "Defender Down Shift": "0",
-        "Defender Control Weight": "0"
+        "Defender Control Weight": "0",
+	"weightsFile": ""
 	}
 
 

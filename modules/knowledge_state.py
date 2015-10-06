@@ -175,13 +175,13 @@ class KnowledgeState(object):
         else:
             return None    
 
-    def getLastProbed(self, list):
+    def getLastProbed(self, klist):
         #activeList = self.getActiveResources()
         #if activeList:
-        if list:
+        if klist:
             lastProbed = None
             lastTime = -1
-            for name in list:
+            for name in klist:
                 if self.resources[name]["probes since last reimage"] > 0\
                    and self.resources[name]["last probe"] > lastTime:
                     lastProbed = name

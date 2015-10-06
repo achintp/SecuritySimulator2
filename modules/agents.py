@@ -118,7 +118,7 @@ class Defender(Agent):
         # I know that both the agents are the same. Maybe rethink design
         # print "Before defender action"
         # print self.knowledge.resources
-        return self.decideAction(self.knowledge, self.stParam, False, reward)
+        return self.decideAction(self.knowledge, self.stParam, False)
 
     def seeServerWake(self, time, resource):
         self.knowledge.updateTime(time)
@@ -155,6 +155,9 @@ class LearnerDefender(Defender):
 #        print "setting strategy to learning";
         if hasattr(self, "strategy"):
             self.decideAction = getattr(self, "learnerAction")
+
+    def getAction(self, reward=None):
+	return self.decideAction(self.knowledge, self.stParam, False, reward)
 
     def learnerAction(self, knowledge, params, askTime, newPayoff = None):
         params = params.split("_");

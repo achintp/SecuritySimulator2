@@ -28,7 +28,8 @@
         "Defender Down Slope": "1",
         "Defender Down Shift": "0",
         "Defender Control Weight": "1",
-        "resources": "10"
+        "resources": "10",
+	"weightsFile": "currentWeights.json"
  
 	}
 

@@ -169,7 +169,8 @@ class DefenderStrategies(AgentStrategies):
                         return maxProbed
 
                     # if the threshold has been crossed by anyone
-                    lastProbed = knowledge.getLastProbed()
+		    activeList = knowledge.getActiveResources()
+                    lastProbed = knowledge.getLastProbed(activeList)
                     if lastProbed[0] is not None:
                         if knowledge.time - lastProbed[1] >= timeLimit:
                             return lastProbed[0]
