@@ -111,7 +111,7 @@ def doAscentRandomRestarts(attackers, directory, eqPayoff=0):
         print "equilibrium payoff: ", eqPayoff;
         if payoff > bestPayoff:
             bestPayoff = payoff;
-            with open(workingdir + "/best.json", "w") as f:
+            with open(directory + "/best.json", "w") as f:
                 best = {};
                 best["payoff"] = payoff;
                 best["weights"] = weights;
