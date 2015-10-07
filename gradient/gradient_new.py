@@ -90,6 +90,8 @@ def doAscentRandomRestarts(attackers, directory, eqPayoff=0):
     # Change these parameters to go faster.
     samples = 3;
     fractions = [.1,.25,.5,1];
+    ######################################
+
     for fraction in fractions:
         for sample in range(samples):
             permutation = np.random.permutation(size);
@@ -109,14 +111,11 @@ def doAscentRandomRestarts(attackers, directory, eqPayoff=0):
         print "equilibrium payoff: ", eqPayoff;
         if payoff > bestPayoff:
             bestPayoff = payoff;
-            with open(directory + "/best.json", "w") as f:
+            with open(workingdir + "/best.json", "w") as f:
                 best = {};
                 best["payoff"] = payoff;
-                best["weights"] = weights.transpose().tolist();
-                json.dump(best, f, indent = 2);
-
-
-    
+                best["weights"] = weights;
+                json.dump(best, f, indent = 2);                
 
 def doAscent(weights, attackers, directory):
     converged = False;
@@ -158,54 +157,6 @@ def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParame
         print "decreasing step size to: ", stepsize
 
     return (startWeights, startPayoff, direction, True);
-
-
-def doDescentOld(attackers, environment_json, dist_index):
-    os.chdir(os.getcwd());
-    results = "results_directory"
-
-    try:
-        os.mkdir(results);
-    except OSError as exc: 
-        pass
-
-    stepsize = 100;
-
-
-    print "initializing run..."
-    (currentPayoff, currentGradient) = evaluateWeights(attackers, environment_json, results, weights, init=True);
-
-    currentWeights = np.zeros(currentGradient.shape);
-    with open(results + "/currentWeights.json", "w") as f:
-        json.dump(currentWeights.transpose().tolist(), f);
-
-    print "first run..."
-    (currentPayoff, currentGradient) = evaluateWeights(attackers, environment_json, results, weightsFile="currentWeights.json");
-    print "Payoff is now:", currentPayoff
-
-    while stepsize > .001: 
-        print currentWeights;
-        candidateWeights = currentWeights + stepsize*currentGradient;
-
-        with open(results + "/candidateWeights.json", "w") as f:
-            json.dump(candidateWeights.transpose().tolist(), f);
-        (nextPayoff, nextGradient) = evaluateWeights(attackers, environment_json, results, weightsFile="candidateWeights.json");
-
-        if nextPayoff > currentPayoff:
-            print "taking gradient step..."
-            with open(results + "/currentWeights.json", "w") as f:
-                json.dump(candidateWeights.transpose().tolist(), f);
-            currentPayoff = nextPayoff;
-            currentGradient = nextGradient
-            print "Current Gradient: ", currentGradient
-            currentWeights = candidateWeights
-            print "Payoff is now:", currentPayoff
-        else:
-            print nextPayoff, " vs ", currentPayoff
-            stepsize = stepsize/float(2)        
-            print "reducing step size to...", stepsize
-            print "recalculating payoff and gradient..."
-            (currentPayoff, currentGradient) = evaluateWeights(attackers, environment_json, results, weightsFile="currentWeights.json");
         
 def main():
     working_directory = "working"
