@@ -15,8 +15,8 @@ def readJson(jsonFolder):
         weights = None;
     else:
 	# This has to be changed
-	weightsFolder = "/nfs/wellman_ls/SecurityGame/weights/"
-        weightsFile = weightsFolder + "/" + weightsFile;
+#	weightsFolder = "/nfs/wellman_ls/SecurityGame/weights/"
+#        weightsFile = weightsFolder + "/" + weightsFile;
 	#print "using file"
         if os.path.isfile(weightsFile):        
             with open(weightsFile) as f:
