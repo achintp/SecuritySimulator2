@@ -3,9 +3,13 @@ import pprint
 import agents
 import types
 import debugging
+import numpy as np
+import os
+import json
 from state_manager import StateManager
 from utility import Utility
 from utility import instUtility
+
 
 
 class Simulator(object):
@@ -119,19 +123,44 @@ class Simulator(object):
         self.utilParams["defControlWeight"] = args["defControlWeight"]
         self.utilParams["resources"] = args["resources"]
 
+    def readWeightsFile(self, weightsFile):
+	weightsFolder = "./"
+	#weightsFolder = "/nfs/wellman_ls/SecurityGame/weights/"
+	weightsPath = weightsFolder + weightsFile + ".json"
+	if os.path.isfile(weightsPath):
+		with open(weightsPath) as f:
+			weights = json.load(f)
+			weights = np.asarray(weights)
+			weights = weights.transpose()
+	else:
+		print "warning:specified weights file ",
+		print weightsFile,
+		print "not found, proceeding without..."
+
     def initAgents(self, args):
         #  We probably don't need a list of agents, since its two player
-        for k, v in args["attackerList"].iteritems():
+        for k, v in args["attackerList"].iteritems():			
+	    # if its a learner strategy then read the weights from the file
+	    parts = v.split("-")
+	    strategyName = parts[0]
+	    weightsFile = ""
+	    weights = None
+	    if strategyName == "learner":
+	        weightsFile = (parts[1].split("_"))[-1]
+	        weights = self.readWeightsFile(weightsFile)
+	        #print "Read weights file: " + weightsFile
+
             d = {
                 "name": k,
                 "strategy": v,
                 "resourceList": args["ResourceList"],
                 "time": self.params["currentTime"],
                 "alpha": args["alpha"],
-                "weights" : args["weights"]
+                #"weights" : args["weights"]
+		"weights": weights
                 }
 
-            strategyName = v.split("-")[0];
+            #strategyName = v.split("-")[0];
             if strategyName == "learner":
                 self.attacker = agents.LearnerAttacker(**d)
                 self.attackerIsLearner = True
@@ -140,6 +169,16 @@ class Simulator(object):
                 self.attackerIsLearner = False
 
         for k, v in args["defenderList"].iteritems():
+	    # if its a learner strategy then read the weights from the file
+	    parts = v.split("-")
+	    strategyName = parts[0]
+	    weightsFile = ""
+	    weights = None
+	    if strategyName == "learner":
+	    	weightsFile = (parts[1].split("_"))[-1]
+	    	weights = self.readWeightsFile(weightsFile)
+	    	#print "Read weights file: " + weightsFile
+
             d = {
                 "name": k,
                 "strategy": v,
@@ -147,10 +186,11 @@ class Simulator(object):
                 "time": self.params["currentTime"],
                 "alpha": args["alpha"],
                 "miss" : 0 if self.missRate is None else self.missRate,
-                "weights" : args["weights"]
+                #"weights" : args["weights"]
+		"weights": weights
                 }
 
-            strategyName = v.split("-")[0];
+            #strategyName = v.split("-")[0];
             if strategyName == "learner":
                 self.defender = agents.LearnerDefender(**d)
                 self.defenderIsLearner = True
@@ -312,7 +352,11 @@ class Simulator(object):
                     self.askAtt = True
                     self.askDef = False  # No point asking the defender
 
-                    resourceName = self.attacker.getAction()
+		    if self.attackerIsLearner:
+		        payoff = self.stateManager.util.getPayoff()["ATT"]
+			resourceName = self.attacker.getAction(payoff)
+		    else:
+                    	resourceName = self.attacker.getAction()
                 #  The attacker belief about all the resources should be
                 #  set to active since he assuemes nothng about downtime
                 self.attacker.knowledge.setActive()

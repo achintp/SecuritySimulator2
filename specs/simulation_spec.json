@@ -1,11 +1,11 @@
 {
 	"assignment": {
 		"ATT": [
-			"controlN-1_5"
+			"learner-1_0.8_currentWeights"
 		],
 
 		"DEF": [
-			"learner-1_0.8"
+			"learner-1_0.8_currentWeights"
 		]
 	},
 
