@@ -4,9 +4,9 @@ import os, sys
 import subprocess
 import numpy as np
 import math, random 
+import argparse
 
 trials = 5;
-environments = 7;
 
 def selectAttacker(attackers):
     r = random.random();
@@ -111,24 +111,34 @@ def doAscentRandomRestarts(attackers, directory, eqPayoff=0):
         print "equilibrium payoff: ", eqPayoff;
         if payoff > bestPayoff:
             bestPayoff = payoff;
-            with open(workingdir + "/best.json", "w") as f:
+            with open(directory + "/best.json", "w") as f:
                 best = {};
                 best["payoff"] = payoff;
-                best["weights"] = weights;
+                best["weights"] = weights.transpose().tolist();
                 json.dump(best, f, indent = 2);                
 
 def doAscent(weights, attackers, directory):
     converged = False;
+    bestWeights = None;
+    bestPayoff = -np.inf;
     while not converged:
-        (weights, newPayoff, newDirection, converged) = doAscentLineSearch(weights, attackers, directory, .5, .25);        
+        (weights, newPayoff, newDirection, converged) = doAscentLineSearch(weights, attackers, directory, .5, .025);        
+        if newPayoff > bestPayoff:
+            bestWeights = weights;
+            bestPayoff = newPayoff;
+
         gradientNorm = newDirection.transpose().dot(newDirection);
         print "gradientNorm ", gradientNorm
         converged = converged or (gradientNorm < .00000001);
-    return (weights, newPayoff);
+        if ((gradientNorm > 1000)):
+            print "WARNING: Gradient exploded! Terminating..."
+            converged = True;
+
+    return (bestWeights, bestPayoff);
 
 def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParameter):
-    t0 = .0001;
-    stepsize = 10;
+    t0 = .000001;
+    stepsize = 1;
 
     with open(directory + "/eval_weights.json", "w") as f:
         json.dump(startWeights.transpose().tolist(), f);
@@ -159,7 +169,12 @@ def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParame
     return (startWeights, startPayoff, direction, True);
         
 def main():
-    working_directory = "working"
+    parser = argparse.ArgumentParser(description='Gradient Ascent on Security Environment');
+    parser.add_argument('working_directory', metavar='DIR', type=str,  help='working directory. should contain current_dist.json, current_env.json as well as a results directory.');
+    args = vars(parser.parse_args());
+    
+    working_directory = args['working_directory'];
+    print working_directory
 
     try:
         os.chdir(os.getcwd());
