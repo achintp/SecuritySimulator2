@@ -10,27 +10,27 @@ def readJson(jsonFolder):
     
     assign = data["assignment"]
     config = data["configuration"]
-    weightsFile = config["weightsFile"]
-    if weightsFile == "":
-        weights = None;
-    else:
+    #weightsFile = config["weightsFile"]
+    #if weightsFile == "":
+    #    weights = None;
+    #else:
 	# This has to be changed
 #	weightsFolder = "/nfs/wellman_ls/SecurityGame/weights/"
 #        weightsFile = weightsFolder + "/" + weightsFile;
 	#print "using file"
-        if os.path.isfile(weightsFile):        
-            with open(weightsFile) as f:
-                weights = json.load(f)
-                weights = np.asarray(weights);
-                weights = weights.transpose();
+     #   if os.path.isfile(weightsFile):        
+      #      with open(weightsFile) as f:
+       #         weights = json.load(f)
+        #        weights = np.asarray(weights);
+         #       weights = weights.transpose();
                 #print "using weights:", weights
-        else:
-            print "warning: specified weights file '" + weightsFile + "' not found, proceeding without..."
+        #else:
+         #   print "warning: specified weights file '" + weightsFile + "' not found, proceeding without..."
    # assign = data["assignment"]
    # config = data["configuration"]
     params = {}
 
-    params["weights"] = weights
+    #params["weights"] = weights
     params['IOFolder'] = jsonFolder
     #  params['startTime'] = int(config["startTime"])a
     #  Environmental parameters

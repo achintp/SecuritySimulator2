@@ -228,7 +228,7 @@ class LearnerDefender(Learner, Defender):
         Learner.__init__(self, **params);
 
 
-class LearnerAttacker(Learner, Defender):
+class LearnerAttacker(Learner, Attacker):
     def __init__(self, **params):
         Attacker.__init__(self, **params);
         Learner.__init__(self, **params);
