@@ -1,11 +1,11 @@
 {
 	"assignment": {
 		"ATT": [
-			"learner-1_0.8_currentWeights"
+			"learner-1_0.8"
 		],
 
 		"DEF": [
-			"learner-1_0.8_currentWeights"
+			"learner-1_0.8"
 		]
 	},
 
@@ -29,7 +29,8 @@
         "Defender Down Shift": "0",
         "Defender Control Weight": "1",
         "resources": "10",
-	"weightsFile": "currentWeights.json"
+	"attackerWeightFile": "specs/currentWeights.json",
+	"defenderWeightFile": "specs/currentWeights.json"
  
 	}
 

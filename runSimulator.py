@@ -31,6 +31,9 @@ def readJson(jsonFolder):
     params = {}
 
     #params["weights"] = weights
+    params["attackerWeightFile"] = config["attackerWeightFile"]
+    params["defenderWeightFile"] = config["defenderWeightFile"]
+
     params['IOFolder'] = jsonFolder
     #  params['startTime'] = int(config["startTime"])a
     #  Environmental parameters

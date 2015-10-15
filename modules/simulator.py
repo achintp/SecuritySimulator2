@@ -123,10 +123,10 @@ class Simulator(object):
         self.utilParams["defControlWeight"] = args["defControlWeight"]
         self.utilParams["resources"] = args["resources"]
 
-    def readWeightsFile(self, weightsFile):
-	weightsFolder = "./"
+    def readWeightsFile(self, weightsPath):
+	#weightsFolder = "./working/"
 	#weightsFolder = "/nfs/wellman_ls/SecurityGame/weights/"
-	weightsPath = weightsFolder + weightsFile + ".json"
+	#weightsPath = weightsFolder + weightsFile + ".json"
 	if os.path.isfile(weightsPath):
 		with open(weightsPath) as f:
 			weights = json.load(f)
@@ -134,7 +134,7 @@ class Simulator(object):
 			weights = weights.transpose()
 	else:
 		print "warning:specified weights file ",
-		print weightsFile,
+		print weightsPath,
 		print "not found, proceeding without..."
 
     def initAgents(self, args):
@@ -146,7 +146,8 @@ class Simulator(object):
 	    weightsFile = ""
 	    weights = None
 	    if strategyName == "learner":
-	        weightsFile = (parts[1].split("_"))[-1]
+	        #weightsFile = (parts[1].split("_"))[-1]
+		weightsFile = args["attackerWeightFile"]
 	        weights = self.readWeightsFile(weightsFile)
 	        #print "Read weights file: " + weightsFile
 
@@ -175,7 +176,8 @@ class Simulator(object):
 	    weightsFile = ""
 	    weights = None
 	    if strategyName == "learner":
-	    	weightsFile = (parts[1].split("_"))[-1]
+	    	#weightsFile = (parts[1].split("_"))[-1]
+		weightsFile = args["defenderWeightFile"]
 	    	weights = self.readWeightsFile(weightsFile)
 	    	#print "Read weights file: " + weightsFile
 
