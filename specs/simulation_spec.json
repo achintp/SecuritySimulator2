@@ -1,7 +1,7 @@
 {
 	"assignment": {
 		"ATT": [
-			"learner-1_0.8"
+			"periodic-0.1"
 		],
 
 		"DEF": [
@@ -30,7 +30,7 @@
         "Defender Control Weight": "1",
         "resources": "10",
 	"attackerWeightFile": "specs/currentWeights.json",
-	"defenderWeightFile": "specs/currentWeights.json"
+	"defenderWeightFile": "specs/best.json"
  
 	}
 

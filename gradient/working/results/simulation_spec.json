@@ -1,7 +1,7 @@
 {
   "assignment": {
     "ATT": [
-      "controlN-1_5"
+      "controlN-1_3"
     ], 
     "DEF": [
       "learner-0.1_0.8"
@@ -14,6 +14,7 @@
     "Defender Down Slope": "5", 
     "Defender Control Slope": "5", 
     "prCost": "0.5", 
+    "defenderWeightFile": "working/eval_weights.json", 
     "Defender Control Weight": "1", 
     "Attacker Control Weight": "0", 
     "runs per sample": "1", 
@@ -21,6 +22,7 @@
     "Defender Control Shift": "0.5", 
     "Attacker Down Slope": "5", 
     "downTime": "7", 
+    "attackerWeightFile": "", 
     "dtCost": "0.0", 
     "endTime": "1000", 
     "Attacker Control Shift": "0.5", 

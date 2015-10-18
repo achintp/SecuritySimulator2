@@ -129,7 +129,9 @@ class Simulator(object):
 	#weightsPath = weightsFolder + weightsFile + ".json"
 	if os.path.isfile(weightsPath):
 		with open(weightsPath) as f:
-			weights = json.load(f)
+			data = json.load(f)
+			weights = data["weights"]
+			#weights = json.load(f)
 			weights = np.asarray(weights)
 			weights = weights.transpose()
 	else:
