@@ -7,20 +7,10 @@ import math, random
 import argparse
 
 trials = 5;
+agent_role = 'DEF';
+opponent_role = 'ATT';
 
-def selectAttacker(attackers):
-    r = random.random();
-    cumulative = 0;
-    previousName = None;
-    for name, probability in attackers.iteritems():
-        if cumulative > r:
-            break;
-        else:
-            previousName = name;
-            cumulative += probability
-    return previousName
-
-def evaluateWeights(attackers, directory, init=False):
+def evaluateWeights(opponents, directory, init=False):
     avgGradient = None;
     avgPayoff = 0;
 
@@ -30,11 +20,11 @@ def evaluateWeights(attackers, directory, init=False):
         trialGradient = None;
         trialPayoff = 0;
 
-        for attacker, probability in attackers.iteritems():
+        for opponent, probability in opponents.iteritems():
 
             with open(directory + "/current_env.json") as f:
                 data = json.load(f);
-                data["assignment"]["ATT"].append(attacker);
+                data["assignment"][opponent_role].append(opponent);
     
                 with open(directory + "/results/simulation_spec.json", "w") as f:
                     json.dump(data, f, indent = 2);        
@@ -47,13 +37,13 @@ def evaluateWeights(attackers, directory, init=False):
                     result = json.load(f);
         
                 for player in result["players"]:
-                    if player["role"] == "DEF":
+                    if player["role"] == agent_role:
                         if trialGradient is None:
                             trialGradient = probability*np.asarray(player["gradient"]).transpose();
                         else:
                             trialGradient = trialGradient + probability*np.asarray(player["gradient"]).transpose();
                         
-                        print "payoff against attacker ", attacker, " on this trial was ", player["payoff"]
+                        print "payoff against opponent ", opponent, " on this trial was ", player["payoff"]
                         trialPayoff += probability*player["payoff"];                
                         break
 
@@ -69,7 +59,7 @@ def evaluateWeights(attackers, directory, init=False):
 
     return (avgPayoff, avgGradient)
 
-def doAscentRandomRestarts(attackers, directory, eqPayoff=0):
+def doAscentRandomRestarts(opponents, directory, eqPayoff=0):
     bestPayoff = 0;
     haveBest = os.path.isfile(directory + "/best.json"); 
     
@@ -79,7 +69,7 @@ def doAscentRandomRestarts(attackers, directory, eqPayoff=0):
             bestPayoff = best["payoff"];
 
     print "initializing run... no purpose other than to get dimensions"
-    (currentPayoff, currentGradient) = evaluateWeights(attackers, directory, init=True);
+    (currentPayoff, currentGradient) = evaluateWeights(opponents, directory, init=True);
     
     # Should be a column vector
     size = currentGradient.size;
@@ -104,7 +94,7 @@ def doAscentRandomRestarts(attackers, directory, eqPayoff=0):
         
             weightsList.append(weights);
     for weight in weightsList:
-        (weights, payoff) = doAscent(weight, attackers, directory);
+        (weights, payoff) = doAscent(weight, opponents, directory);
         print "##### DONE WITH ONE ASCENT #####";
         print "best payoff so far: ", bestPayoff;
         print "current payoff: ", payoff;
@@ -117,12 +107,12 @@ def doAscentRandomRestarts(attackers, directory, eqPayoff=0):
                 best["weights"] = weights.transpose().tolist();
                 json.dump(best, f, indent = 2);                
 
-def doAscent(weights, attackers, directory):
+def doAscent(weights, opponents, directory):
     converged = False;
     bestWeights = None;
     bestPayoff = -np.inf;
     while not converged:
-        (weights, newPayoff, newDirection, converged) = doAscentLineSearch(weights, attackers, directory, .5, .025);        
+        (weights, newPayoff, newDirection, converged) = doAscentLineSearch(weights, opponents, directory, .5, .025);        
         if newPayoff > bestPayoff:
             bestWeights = weights;
             bestPayoff = newPayoff;
@@ -136,7 +126,7 @@ def doAscent(weights, attackers, directory):
 
     return (bestWeights, bestPayoff);
 
-def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParameter):
+def doAscentLineSearch(startWeights, opponents, directory, decayRate, stopParameter):
     t0 = .000001;
     stepsize = 1;
 
@@ -144,7 +134,7 @@ def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParame
         json.dump(startWeights.transpose().tolist(), f);
     
     print "recalculating gradient...";
-    (startPayoff, direction) = evaluateWeights(attackers, directory);
+    (startPayoff, direction) = evaluateWeights(opponents, directory);
     print "gradient:", direction
 
     while stepsize > t0:
@@ -157,7 +147,7 @@ def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParame
             json.dump(step.transpose().tolist(), f);
 
         print "evaluating step..."
-        (stepPayoff, stepGradient) = evaluateWeights(attackers, directory);
+        (stepPayoff, stepGradient) = evaluateWeights(opponents, directory);
         print "step payoff:", stepPayoff
 
         if stepPayoff > stopCriterion:
@@ -171,10 +161,26 @@ def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParame
 def main():
     parser = argparse.ArgumentParser(description='Gradient Ascent on Security Environment');
     parser.add_argument('working_directory', metavar='DIR', type=str,  help='working directory. should contain current_dist.json, current_env.json as well as a results directory.');
-    args = vars(parser.parse_args());
-    
+    parser.add_argument('agent', metavar='AGENT', type=str, help='Either ATT or DEF. Indicates which agent\'s persepective to take.');
+    parser.add_argument('--distribution', metavar='I', type=int, help='which distribution in current_dist.json to use. Defaults to the 0th distribution.', default = 0);
+
+    args = vars(parser.parse_args());    
     working_directory = args['working_directory'];
     print working_directory
+
+    agent_role = args['agent'];
+    if agent_role not in ('ATT', 'DEF'):
+        print 'Agent ', agent_role , ' not recognized';
+        return;
+
+    if agent_role == 'ATT':
+        opponent_role = 'DEF';
+    else:
+        opponent_role = 'ATT';
+
+    # agent_role and opponent_role are globals. really should turn this code into a class. 
+
+    distribution_index = args['distribution'];
 
     try:
         os.chdir(os.getcwd());
@@ -185,12 +191,13 @@ def main():
     with open(working_directory + "/current_dist.json") as f:
         data = json.loads(json.dumps(eval(f.read())))
     
-    distributions = data['distributions'];
+    distribution = data['distributions'][distribution_index];
 
-    for distribution in distributions:
-        attackers = distribution["data"]["ATT"];
-        eqPayoff = distribution["payoffs"]["DEF"]["payoff"];
-        doAscentRandomRestarts(attackers, working_directory, eqPayoff);
+
+    opponents = distribution["data"][opponent_role];
+    eqPayoff = distribution["payoffs"][agent_role]["payoff"];
+    
+    doAscentRandomRestarts(opponents, working_directory, eqPayoff);
 
 
 if __name__ == '__main__':
