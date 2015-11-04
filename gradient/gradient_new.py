@@ -14,6 +14,9 @@ def evaluateWeights(opponents, directory, init=False):
     avgGradient = None;
     avgPayoff = 0;
 
+    print opponent_role
+    print agent_role
+
     for t in range(trials):
         if init and t > 0:
             break;
@@ -21,11 +24,11 @@ def evaluateWeights(opponents, directory, init=False):
         trialPayoff = 0;
 
         for opponent, probability in opponents.iteritems():
-
+	    print opponent
             with open(directory + "/current_env.json") as f:
                 data = json.load(f);
                 data["assignment"][opponent_role].append(opponent);
-    
+ 
                 with open(directory + "/results/simulation_spec.json", "w") as f:
                     json.dump(data, f, indent = 2);        
 
@@ -168,6 +171,10 @@ def main():
     working_directory = args['working_directory'];
     print working_directory
 
+    global opponent_role
+    global agent_role
+    global trials
+
     agent_role = args['agent'];
     if agent_role not in ('ATT', 'DEF'):
         print 'Agent ', agent_role , ' not recognized';
@@ -177,6 +184,9 @@ def main():
         opponent_role = 'DEF';
     else:
         opponent_role = 'ATT';
+
+    print agent_role
+    print opponent_role
 
     # agent_role and opponent_role are globals. really should turn this code into a class. 
 
@@ -196,6 +206,7 @@ def main():
 
     opponents = distribution["data"][opponent_role];
     eqPayoff = distribution["payoffs"][agent_role]["payoff"];
+    print opponents
     
     doAscentRandomRestarts(opponents, working_directory, eqPayoff);
 

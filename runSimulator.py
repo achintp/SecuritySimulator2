@@ -111,6 +111,7 @@ def writeJson(payoffs, gradient, obs, args):
             "strategy": strategy,
             # "Total Probes":payoffs['totalProbes'],
             "payoff": payoffs["ATT"],
+	    "gradient": gradient.transpose().tolist()
             })
 
 #	features = {}
