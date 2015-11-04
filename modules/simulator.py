@@ -6,6 +6,7 @@ import debugging
 import numpy as np
 import os
 import json
+import sys
 from state_manager import StateManager
 from utility import Utility
 from utility import instUtility
@@ -129,15 +130,17 @@ class Simulator(object):
 	#weightsPath = weightsFolder + weightsFile + ".json"
 	if os.path.isfile(weightsPath):
 		with open(weightsPath) as f:
-			data = json.load(f)
-			weights = data["weights"]
-			#weights = json.load(f)
+			#data = json.load(f)
+		#	weights = data["weights"]
+			weights = json.load(f)
 			weights = np.asarray(weights)
 			weights = weights.transpose()
+			return weights
 	else:
 		print "warning:specified weights file ",
 		print weightsPath,
-		print "not found, proceeding without..."
+		print "not found, exiting"
+		#sys.exit("File not found")
 
     def initAgents(self, args):
         #  We probably don't need a list of agents, since its two player
@@ -150,6 +153,8 @@ class Simulator(object):
 	    if strategyName == "learner":
 	        #weightsFile = (parts[1].split("_"))[-1]
 		weightsFile = args["attackerWeightFile"]
+		version = (parts[1].split("_"))[-1]
+		weightsFile = weightsFile + version + ".json"
 	        weights = self.readWeightsFile(weightsFile)
 	        #print "Read weights file: " + weightsFile
 
@@ -180,6 +185,8 @@ class Simulator(object):
 	    if strategyName == "learner":
 	    	#weightsFile = (parts[1].split("_"))[-1]
 		weightsFile = args["defenderWeightFile"]
+		version = (parts[1].split("_"))[-1]
+		weightsFile = weightsFile + version + ".json"
 	    	weights = self.readWeightsFile(weightsFile)
 	    	#print "Read weights file: " + weightsFile
 

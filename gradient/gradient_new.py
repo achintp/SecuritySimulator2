@@ -140,7 +140,7 @@ def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParame
     t0 = .000001;
     stepsize = 1;
 
-    with open(directory + "/eval_weights.json", "w") as f:
+    with open(directory + "/evalweights.json", "w") as f:
         json.dump(startWeights.transpose().tolist(), f);
     
     print "recalculating gradient...";
@@ -153,7 +153,7 @@ def doAscentLineSearch(startWeights, attackers, directory, decayRate, stopParame
 
         step = startWeights + stepsize*direction;
         
-        with open(directory + "/eval_weights.json", "w") as f:
+        with open(directory + "/evalweights.json", "w") as f:
             json.dump(step.transpose().tolist(), f);
 
         print "evaluating step..."

@@ -1,0 +1,1 @@
+{"distributions": [{"type": "GA_Profile", "data": {"ATT": {"controlN-1_8": 0.1956869975, "periodic-1": 0.8043130025}, "DEF": {"learner-1_0.8_AADA531": 0.7898958327, "controlN-2_0.001_1": 0.2101041673}}, "payoffs": {"ATT": {"payoff": 222.25493744989785}, "DEF": {"payoff": 184.66281273841275}}}]}

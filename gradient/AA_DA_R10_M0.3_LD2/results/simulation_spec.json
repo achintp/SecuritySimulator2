@@ -1,0 +1,33 @@
+{
+  "assignment": {
+    "ATT": [
+      "periodic-1"
+    ], 
+    "DEF": [
+      "learner-0.1_0.8_evalweights"
+    ]
+  }, 
+  "configuration": {
+    "Defender Down Shift": "0.5", 
+    "Probe miss rate": "0.3", 
+    "Attacker Down Shift": "0.5", 
+    "Defender Down Slope": "5", 
+    "Defender Control Slope": "5", 
+    "prCost": "0.5", 
+    "defenderWeightFile": "AA_DA_R10_M0.3_LD2/", 
+    "Defender Control Weight": "1", 
+    "Attacker Control Weight": "1", 
+    "runs per sample": "1", 
+    "alpha": "0.05", 
+    "Defender Control Shift": "0.5", 
+    "Attacker Down Slope": "5", 
+    "downTime": "7", 
+    "attackerWeightFile": "", 
+    "dtCost": "0.0", 
+    "endTime": "1000", 
+    "Attacker Control Shift": "0.5", 
+    "Attacker Control Slope": "5", 
+    "resources": "10", 
+    "False probe rate": "0"
+  }
+}

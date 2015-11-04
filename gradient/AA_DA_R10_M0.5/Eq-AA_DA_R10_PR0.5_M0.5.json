@@ -1,0 +1,1 @@
+[{"data": {"ATT": {"controlN-1_8": 0.0572881976, "No-Op": 0.1699216209, "periodic-1": 0.7727901815}, "DEF": {"refactoryRenewal-0_1": 0.6096770185, "probeCountTime-4_50": 0.3621890467, "controlN-2_0.001_1": 0.0281339348}}, "type": "GA_Profile", "payoffs": {"ATT": {"payoff": 2.083976491107311e-08}, "DEF": {"payoff": 229.4214758428574}}}]

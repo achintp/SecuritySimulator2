@@ -1,19 +1,19 @@
 {
 	"assignment": {
 		"ATT": [
-			"controlN-1_5"
+
 		],
 
 		"DEF": [
-			"learner-1_0.8_1"
+			"learner-0.1_0.8_evalweights"
 		]
 	},
 
 	"configuration":{
 		"endTime": "1000",
-		"dtCost": "0.3",
+		"dtCost": "0.0",
 		"prCost": "0.5",
-		"runs per sample": "60",
+		"runs per sample": "1",
 		"alpha": "0.05",
 		"downTime": "7",
         "Probe miss rate": "0.3",
@@ -29,8 +29,8 @@
         "Defender Down Shift": "0.5",
         "Defender Control Weight": "1",
         "resources": "10",
-	"attackerWeightFile": "specs/best",
-	"defenderWeightFile": "specs/bt"
+	"attackerWeightFile": "",
+	"defenderWeightFile": "working/"
  
 	}
 
