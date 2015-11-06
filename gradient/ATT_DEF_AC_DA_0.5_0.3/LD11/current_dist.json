@@ -1,0 +1,1 @@
+{"distributions": [{"type": "GA_Profile", "data": {"ATT": {"No-Op": 0.1597215857, "periodic-1": 0.8402784143}, "DEF": {"refactoryRenewal-0_1": 0.5968275169, "controlThreshold-0.01_1": 0.4031724831}}, "payoffs": {"ATT": {"payoff": 437.19329351380713}, "DEF": {"payoff": 237.97035952394202}}}]}

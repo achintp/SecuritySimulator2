@@ -273,6 +273,7 @@ class LearnerDefenderOld(Defender):
             if self.Z is None:
                 self.Z = self.initWeights(numFeatures);
                 self.Grad = self.initWeights(numFeatures);
+	    print numFeatures
             rawvalue = np.dot(features, self.weights);
             probabilities = self.softmax(rawvalue);
             # A lot of untupling going on here...
