@@ -131,7 +131,7 @@ class Simulator(object):
 	if os.path.isfile(weightsPath):
 		with open(weightsPath) as f:
 			#data = json.load(f)
-		#	weights = data["weights"]
+			#weights = data["weights"]
 			weights = json.load(f)
 			weights = np.asarray(weights)
 			weights = weights.transpose()
