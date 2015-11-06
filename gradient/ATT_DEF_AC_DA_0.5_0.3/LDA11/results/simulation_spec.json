@@ -1,0 +1,33 @@
+{
+  "assignment": {
+    "ATT": [
+      "learner-0.1_0.8_evalweights"
+    ], 
+    "DEF": [
+      "learner-1_0.8_ACDA53LD11"
+    ]
+  }, 
+  "configuration": {
+    "Defender Down Shift": "0.5", 
+    "Probe miss rate": "0.3", 
+    "Attacker Down Shift": "0.5", 
+    "Defender Down Slope": "5", 
+    "Defender Control Slope": "5", 
+    "prCost": "0.5", 
+    "defenderWeightFile": "ATT_DEF_AC_DA_0.5_0.3/LDA11/def", 
+    "Defender Control Weight": "1", 
+    "Attacker Control Weight": "0", 
+    "runs per sample": "1", 
+    "alpha": "0.05", 
+    "Defender Control Shift": "0.5", 
+    "Attacker Down Slope": "5", 
+    "downTime": "7", 
+    "attackerWeightFile": "ATT_DEF_AC_DA_0.5_0.3/LDA11/", 
+    "dtCost": "0.0", 
+    "endTime": "1000", 
+    "Attacker Control Shift": "0.5", 
+    "Attacker Control Slope": "5", 
+    "resources": "10", 
+    "False probe rate": "0"
+  }
+}
