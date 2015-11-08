@@ -33,6 +33,7 @@ class KnowledgeState(object):
         self.time = args["time"]
         self.owner = owner
         self.alpha = args["alpha"]
+        self.downtime = args["downtime"];
 
         if "miss" in args:
             self.miss = args["miss"];
@@ -171,9 +172,9 @@ class KnowledgeState(object):
                     maxCount = self.resources[item][
                         "probes since last reimage"]
             assert(maxServer is not None)
-            return maxServer
+            return (maxServer, maxCount);
         else:
-            return None    
+            return (None, None);
 
     def getLastProbed(self, klist):
         #activeList = self.getActiveResources()
@@ -233,10 +234,11 @@ class KnowledgeState(object):
     def periodsElapsed(self, eventTime, period):
         return (self.time - eventTime)/period;
 
+
     # This function computes all the features that might be used by
     # a learning algorithm. These are features that are ``machine
     # independent.''
-    def calculateInvariantLearningFeatures(self, period):
+    def calculateDefenderInvariantFeatures(self, period):
         totalProbed = 0;
         
         #(P)eriods (E)lapsed (S)ince Post-Reimage (P)robe
@@ -329,9 +331,17 @@ class KnowledgeState(object):
 
         return (lastProbed, penultimateProbed);
 
+    def calculateFeaturesMatrix(self, period):
+        if self.owner == "ATT":
+            return self.calculateAttackerFeaturesMatrix(period);
+
+        if self.owner == "DEF":
+            return self.calculateDefenderFeaturesMatrix(period);
+
+
     # Return matrix of all features as a numpy matrix. 
-    def calculateAllResourceFeaturesMatrix(self, period):
-        invariantFeatures = self.calculateInvariantLearningFeatures(period);
+    def calculateDefenderFeaturesMatrix(self, period):
+        invariantFeatures = self.calculateDefenderInvariantFeatures(period);
         
         invariantFeaturesAsList = \
             [ invariantFeatures[key] for key in sorted(invariantFeatures.keys())];
@@ -346,7 +356,7 @@ class KnowledgeState(object):
             indexToNameMap[index] = name; index += 1;
 
             resourceSpecificFeatures = \
-                self.calculateResourceFeatures(name, period, invariantFeatures, lastProbed)
+                self.calculateDefenderResourceFeatures(name, period, invariantFeatures, lastProbed)
             allResourceFeatures = list(invariantFeaturesAsList);
             allResourceFeatures.extend(resourceSpecificFeatures);
             if allFeatures is None:
@@ -367,8 +377,91 @@ class KnowledgeState(object):
         
         return (allFeatures, indexToNameMap);
 
+    def calculateAttackerFeaturesMatrix(self, period):
+        lastProbed = self.calculateLastTwoResources();
+        maxProbed = self.getMaxProbed(self.resources)[1];
 
-    def calculateResourceFeatures(self, name, period, invariant, lastProbed):        
+        allFeatures = None;
+
+        periodsSinceAction = self.periodsElapsed(self.lastActionTime, period);
+        reimages = 0;
+        for name, info in self.resources.iteritems():
+            reimages += info["Reimage Count"];
+
+        invariantFeatures = [1, periodsSinceAction, reimages];
+
+        index = 1;
+        indexToNameMap = {};
+        for name in sorted(self.resources.keys()):
+            indexToNameMap[index] = name; index += 1;
+
+            resourceSpecificFeatures = \
+                self.calculateAttackerResourceFeatures(name, period, lastProbed, maxProbed);
+            allResourceFeatures = list(invariantFeatures);
+            allResourceFeatures.extend(resourceSpecificFeatures);
+            if allFeatures is None:
+                allFeatures = np.array(allResourceFeatures);
+            else:
+                allFeatures = np.vstack([allFeatures, np.array(allResourceFeatures)]);
+
+
+        numFeatures = allFeatures.shape[1];        
+        noneFeatures = [1];
+        noneFeatures.extend([0] * (numFeatures - 1));
+
+        allFeatures = np.vstack([np.array(noneFeatures), allFeatures]);
+        indexToNameMap[0] = None;        
+
+        if debug: 
+            print "All features: ", allFeatures;
+        
+        return (allFeatures, indexToNameMap);
+
+
+    def calculateAttackerResourceFeatures(self, name, period, lastProbed, maxProbe):
+        features = [0];
+
+        hasBeenProbed = int(self.resources[name]["status"] == "PROBED");
+        features.append(hasBeenProbed); 
+
+        compromised = int(self.resources[name]["status"] == "COMPR");
+        features.append(compromised);
+
+        uncompromised = int(self.resources[name]["status"] != "COMPR");
+        features.append(uncompromised);
+
+        periodsElapsedSinceProbed = \
+            self.periodsElapsed(self.getLastProbe(name), period);
+        features.append(periodsElapsedSinceProbed); 
+        features.append(uncompromised*periodsElapsedSinceProbed);
+        
+        isLast = int(lastProbed[0] == name);
+        features.append(isLast); 
+        features.append(uncompromised*isLast);
+        
+        probeCount = self.getProbesSinceLastReimage(name);
+        features.append(probeCount);
+        features.append(uncompromised*probeCount);
+        features.append(uncompromised*probeCount/float(periodsElapsedSinceProbed));
+        
+        isMaxProbe = int(probeCount == maxProbe);
+        features.append(isMaxProbe); 
+        features.append(uncompromised*isMaxProbe);
+        if maxProbe > 0:
+            unprobedness = 1 - float(probeCount)/maxProbe;
+        else:
+            unprobedness = 1;
+        
+        features.append(unprobedness);
+        features.append(uncompromised*unprobedness);
+        
+        itsDown = int(self.time < (self.getLastReimage(name) + self.downtime));
+        features.append(itsDown);
+
+        return features;
+        
+
+    def calculateDefenderResourceFeatures(self, name, period, invariant, lastProbed):        
         # invariant is a dictionary containing the invariant features, 
         # and is used to speed up computations. lastProbed a tuple of the 
         # names (possibly None) of the two last machines to be probed and 

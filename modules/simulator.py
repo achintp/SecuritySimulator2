@@ -165,7 +165,8 @@ class Simulator(object):
                 "time": self.params["currentTime"],
                 "alpha": args["alpha"],
                 #"weights" : args["weights"]
-		"weights": weights
+		"weights": weights,
+                "downtime" : self.params["downTime"]
                 }
 
             #strategyName = v.split("-")[0];
@@ -198,7 +199,8 @@ class Simulator(object):
                 "alpha": args["alpha"],
                 "miss" : 0 if self.missRate is None else self.missRate,
                 #"weights" : args["weights"]
-		"weights": weights
+		"weights": weights,
+                "downtime" : self.params["downTime"]
                 }
 
             #strategyName = v.split("-")[0];
@@ -527,6 +529,13 @@ class Simulator(object):
             return self.defender.Grad;
         else:
             return None;
+
+    def getAttackerGradient(self):
+        if hasattr(self.attacker, "Grad"):
+            return self.attacker.Grad;
+        else:
+            return None;
+
 
     def simulate(self):
         # Starts the simulation

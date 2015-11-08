@@ -7,15 +7,13 @@ import math, random
 import argparse
 
 trials = 5;
-agent_role = 'DEF';
-opponent_role = 'ATT';
 
 def evaluateWeights(opponents, directory, init=False):
     avgGradient = None;
     avgPayoff = 0;
 
-    print opponent_role
-    print agent_role
+    global opponent_role
+    global agent_role
 
     for t in range(trials):
         if init and t > 0:
@@ -76,6 +74,8 @@ def doAscentRandomRestarts(opponents, directory, eqPayoff=0):
     
     # Should be a column vector
     size = currentGradient.size;
+    print "GRADIENT LENGTH (should be 19):" , size;
+
     print "deciding random restart points..."
 
     weights0 = np.zeros((size, 1));
@@ -115,14 +115,14 @@ def doAscent(weights, opponents, directory):
     bestWeights = None;
     bestPayoff = -np.inf;
     while not converged:
-        (weights, newPayoff, newDirection, converged) = doAscentLineSearch(weights, opponents, directory, .5, .025);        
+        (weights, newPayoff, newDirection) = doAscentLineSearch(weights, opponents, directory, .5, .025);        
         if newPayoff > bestPayoff:
             bestWeights = weights;
             bestPayoff = newPayoff;
 
         gradientNorm = newDirection.transpose().dot(newDirection);
         print "gradientNorm ", gradientNorm
-        converged = converged or (gradientNorm < .00000001);
+        converged = (gradientNorm < .00000001);
         if ((gradientNorm > 1000)):
             print "WARNING: Gradient exploded! Terminating..."
             converged = True;
@@ -154,12 +154,12 @@ def doAscentLineSearch(startWeights, opponents, directory, decayRate, stopParame
         print "step payoff:", stepPayoff
 
         if stepPayoff > stopCriterion:
-            return (step, stepPayoff, stepGradient, False);
+            return (step, stepPayoff, stepGradient);
 
         stepsize = decayRate*stepsize;
         print "decreasing step size to: ", stepsize
 
-    return (startWeights, startPayoff, direction, True);
+    return (startWeights, startPayoff, direction);
         
 def main():
     parser = argparse.ArgumentParser(description='Gradient Ascent on Security Environment');
@@ -174,6 +174,7 @@ def main():
     global opponent_role
     global agent_role
     global trials
+    trial = 5;
 
     agent_role = args['agent'];
     if agent_role not in ('ATT', 'DEF'):

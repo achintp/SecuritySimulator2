@@ -102,7 +102,7 @@ def parseArgs():
     return params
 
 
-def writeJson(payoffs, gradient, obs, args):
+def writeJson(payoffs, attGradient, defGradient, obs, args):
     payoff = {"players": []}
     for name, strategy in args['attackerList'].iteritems():
         payoff['players'].append({
@@ -111,7 +111,7 @@ def writeJson(payoffs, gradient, obs, args):
             "strategy": strategy,
             # "Total Probes":payoffs['totalProbes'],
             "payoff": payoffs["ATT"],
-	    "gradient": gradient.transpose().tolist()
+	    "gradient": attGradient.transpose().tolist()
             })
 
 #	features = {}
@@ -125,7 +125,7 @@ def writeJson(payoffs, gradient, obs, args):
                 #"Total Downtime":payoffs['totalDownTime'],
                 "payoff": payoffs["DEF"],
                 #"features": features,
-	    	"gradient": gradient.transpose().tolist()
+	    	"gradient": defGradient.transpose().tolist()
                 })
 
             with open(args['IOFolder'] + "/observation_" + str(obs)
@@ -137,9 +137,10 @@ def writeJson(payoffs, gradient, obs, args):
 def runSimulator(params):
     sim = Simulator.Simulator(params)
     payoff = sim.simulate()
-    (gradient) = sim.getDefenderGradient();
+    (gradientA) = sim.getAttackerGradient();
+    (gradientD) = sim.getDefenderGradient();
 #    print sim.stateManager.getUtilState();
-    return (payoff, gradient)
+    return (payoff, gradientA, gradientD)
 
 
 def main():
@@ -147,6 +148,7 @@ def main():
     rps = int(args["runs per sample"])
     for i in range(args["samples"]):
         defGradient = None;
+        attGradient = None;
         cPayoff = {
             "totalProbes": 0,
             "totalDowntime": 0,
@@ -154,26 +156,38 @@ def main():
             "ATT": 0,
             }
         for j in range(0, rps):
-            (payoff, gradient) = runSimulator(args)
+            (payoff, gradientA, gradientD) = runSimulator(args)
             if defGradient is None:
-                defGradient = gradient;
+                defGradient = gradientD;
             else:
-                defGradient += gradient;
+                defGradient += gradientD;
             
+            if attGradient is None:
+                attGradient = gradientA;
+            else:
+                attGradient += gradientA;
+
             for k, v in payoff.iteritems():
                 cPayoff[k] += v
 	
 	if defGradient is not None:
         	defGradient /= rps
 	else:
-		defGradient = np.zeros(1) 
+		defGradient = np.zeros(1)
+
+	if attGradient is not None:
+        	attGradient /= rps
+	else:
+		attGradient = np.zeros(1)
+
+ 
 
         for k, v in cPayoff.iteritems():
             # print cPayoff[k]
             cPayoff[k] /= rps
             # print cPayoff[k]
         # print "\n\n"
-        writeJson(cPayoff, defGradient, i, args)
+        writeJson(cPayoff, attGradient, defGradient, i, args)
 
 if __name__ == '__main__':
     main()

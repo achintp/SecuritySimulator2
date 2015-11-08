@@ -126,7 +126,7 @@ class Defender(Agent):
 
     def getActionTime(self, time):
         self.knowledge.updateTime(time)
-        self.knowledge.calculateAllResourceFeaturesMatrix(1)
+        self.knowledge.calculateFeaturesMatrix(1)
         actionTime = self.decideAction(self.knowledge, self.stParam, True)
         if actionTime is None:
             return actionTime
@@ -167,7 +167,7 @@ class Learner(Agent):
             return knowledge.time + period
         else:
             assert(newPayoff is not None);
-            (features, map) = knowledge.calculateAllResourceFeaturesMatrix(period);
+            (features, map) = knowledge.calculateFeaturesMatrix(period);
             numActions = features.shape[0];
             numFeatures = features.shape[1];
             if self.weights is None:
@@ -175,6 +175,7 @@ class Learner(Agent):
             if self.Z is None:
                 self.Z = self.initWeights(numFeatures);
                 self.Grad = self.initWeights(numFeatures);
+            
             rawvalue = np.dot(features, self.weights);
             probabilities = self.softmax(rawvalue);
             # A lot of untupling going on here...
@@ -233,91 +234,3 @@ class LearnerAttacker(Learner, Attacker):
         Attacker.__init__(self, **params);
         Learner.__init__(self, **params);
 
-
-class LearnerDefenderOld(Defender):
-    def __init__(self, **params):
-        super(LearnerDefender, self).__init__(**params)
-        
-        self.weights = params["weights"];
-
-        self.Grad = None;
-        self.Z = None;
-
-        self.step = 0;
-        self.cumulativePayoff = 0;
-
-    def setStrategy(self):
-#        print "setting strategy to learning";
-        if hasattr(self, "strategy"):
-            self.decideAction = getattr(self, "learnerAction")
-
-    def getAction(self, reward=None):
-	return self.decideAction(self.knowledge, self.stParam, False, reward)
-
-    def learnerAction(self, knowledge, params, askTime, newPayoff = None):
-        params = params.split("_");
-        period = float(params[0]);
-        beta = float(params[1]);
-
-        if(askTime):
-            if knowledge.time < knowledge.previousTime:
-                return None
-            return knowledge.time + period
-        else:
-            assert(newPayoff is not None);
-            (features, map) = knowledge.calculateAllResourceFeaturesMatrix(period);
-            numActions = features.shape[0];
-            numFeatures = features.shape[1];
-            if self.weights is None:
-                self.weights = self.initWeights(numFeatures)
-            if self.Z is None:
-                self.Z = self.initWeights(numFeatures);
-                self.Grad = self.initWeights(numFeatures);
-	    print numFeatures
-            rawvalue = np.dot(features, self.weights);
-            probabilities = self.softmax(rawvalue);
-            # A lot of untupling going on here...
-            # pick is simply the result of a random draw according
-            # to probabilites. 
-            pick = np.nonzero(np.random.multinomial(\
-                    1,probabilities.transpose().tolist()[0]))[0][0];
-
-            name = map[pick];
-            if name in knowledge.getActiveResources():
-                action = name;
-            else:
-#                if name is not None:
-#                    print "Selected ", name, "but:", knowledge.resources[name]
-                action = None;
-            
-            reward = newPayoff - self.cumulativePayoff;
-            self.cumulativePayoff = newPayoff;
-            # Update gradient estimate
-            
-            self.Grad = self.Grad + (1/float(self.step+1))* \
-                (reward*self.Z - self.Grad);
-            self.step += 1;
-            
-            averageFeatures = np.zeros((1,numFeatures));
-
-            for i in range(numActions):
-                averageFeatures += probabilities[i,0]*features[i,:];
-
-            score = features[pick,:] - averageFeatures;
-#            print str(features[pick, :])
-            self.Z = beta*self.Z + score.transpose();
-
-            return action
-
-    def initWeights(self, k):
-        return np.zeros((k,1));
-
-
-    def softmax(self, scores):
-        max = np.amax(scores);
-        unnormalized = np.exp(scores - max);
-        z = np.sum(unnormalized);
-        return unnormalized/z;
-
-    def getGradient(self):
-        return self.Grad;
