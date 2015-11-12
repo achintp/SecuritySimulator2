@@ -388,7 +388,7 @@ class KnowledgeState(object):
         for name, info in self.resources.iteritems():
             reimages += info["Reimage Count"];
 
-        invariantFeatures = [1, periodsSinceAction, reimages];
+        invariantFeatures = [0, 1, periodsSinceAction, reimages];
 
         index = 1;
         indexToNameMap = {};
@@ -419,8 +419,12 @@ class KnowledgeState(object):
 
 
     def calculateAttackerResourceFeatures(self, name, period, lastProbed, maxProbe):
-        features = [0];
+        features = [];
 
+        activeControlByOthers = self.getActiveControlByOthers();
+        features.append(int(name not in activeControlByOthers));
+        features.append(int(name in activeControlByOthers));
+        
         hasBeenProbed = int(self.resources[name]["status"] == "PROBED");
         features.append(hasBeenProbed); 
 
